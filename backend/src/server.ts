@@ -3,6 +3,8 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
+import swaggerUi from 'swagger-ui-express'
+import { swaggerSpec } from './config/swagger'
 
 dotenv.config()
 
@@ -24,6 +26,9 @@ app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || 'http://localhost:5173'
 }))
 
+// Swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+
 // Endpoint de teste
 app.get('/health', (_, res) => {
   res.json({ status: 'ok', message: 'RoyaleDex backend is running' })
@@ -32,4 +37,5 @@ app.get('/health', (_, res) => {
 // Inicia o servidor
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
+  console.log(`Swagger docs available at http://localhost:${PORT}/api-docs`)
 })
