@@ -1,4 +1,7 @@
 import swaggerJsdoc from 'swagger-jsdoc'
+import path from 'path'
+
+const isDev = __filename.endsWith('.ts')
 
 const options: swaggerJsdoc.Options = {
   definition: {
@@ -29,7 +32,7 @@ const options: swaggerJsdoc.Options = {
       },
     },
   },
-  apis: ['./src/routes/*.ts'], // onde o Swagger vai procurar os comentários
+  apis: [path.join(__dirname, isDev ? '../routes/*.ts' : '../routes/*.js')]
 }
 
 export const swaggerSpec = swaggerJsdoc(options)
