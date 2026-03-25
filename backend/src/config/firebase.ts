@@ -1,4 +1,8 @@
 import admin from 'firebase-admin'
+import dotenv from 'dotenv'
+
+// Carrega variáveis de ambiente primeiro
+dotenv.config()
 
 // Valida se a variável existe antes de qualquer coisa
 if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
