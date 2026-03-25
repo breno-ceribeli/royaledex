@@ -35,6 +35,14 @@ async function fetchFromClash<T>(endpoint: string): Promise<T> {
     if (!response.ok) {
       const error: ClashApiError = { status: response.status, message: '' }
 
+      if (response.status === 400) {
+        error.message = 'Bad request. Check your parameters.'
+        throw error
+      }
+      if (response.status === 403) {
+        error.message = 'Access denied. API token may be invalid or expired.'
+        throw error
+      }
       if (response.status === 404) {
         error.message = 'Resource not found'
         throw error

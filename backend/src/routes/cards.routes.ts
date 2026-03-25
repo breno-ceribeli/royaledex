@@ -22,6 +22,30 @@ const router = Router()
  *                   type: array
  *                   items:
  *                     type: object
+ *                 supportItems:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       400:
+ *         description: Bad request - incorrect parameters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Bad request. Check your parameters.
+ *       403:
+ *         description: Access denied - invalid API token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Access denied. API token may be invalid or expired.
  *       429:
  *         description: Rate limit exceeded
  *         content:
