@@ -5,11 +5,17 @@ import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import swaggerUi from 'swagger-ui-express'
 import { swaggerSpec } from './config/swagger'
+import apiRoutes from './routes/index'
 
 dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 3001
+
+// Health check endpoint (sem middlewares)
+app.get('/health', (_, res) => {
+  res.json({ status: 'ok', message: 'RoyaleDex backend is running' })
+})
 
 // Rate limiter — 30 requisições por minuto por IP
 const limiter = rateLimit({
@@ -29,10 +35,8 @@ app.use(cors({
 // Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
-// Endpoint de teste
-app.get('/health', (_, res) => {
-  res.json({ status: 'ok', message: 'RoyaleDex backend is running' })
-})
+// API Routes
+app.use('/api', apiRoutes)
 
 // Inicia o servidor
 app.listen(PORT, () => {

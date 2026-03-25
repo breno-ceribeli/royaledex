@@ -13,11 +13,11 @@ const options: swaggerJsdoc.Options = {
     },
     servers: [
       {
-        url: 'http://localhost:3001',
+        url: 'http://localhost:3001/api',
         description: 'Development',
       },
       {
-        url: 'https://royaledex.onrender.com',
+        url: 'https://royaledex.onrender.com/api',
         description: 'Production',
       },
     ],
