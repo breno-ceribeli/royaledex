@@ -1,4 +1,4 @@
-import { CardsResponse, ClashApiError } from '../types/clash.types'
+import { CardsResponse, ClashApiError, Player, PlayerProfile } from '../types/clash.types'
 
 // Cache global para lista de cartas — válido por 1 hora
 interface CacheEntry<T> {
@@ -77,6 +77,9 @@ async function fetchFromClash<T>(endpoint: string): Promise<T> {
 /**
  * Obtém todas as cartas do jogo
  * Usa cache em memória (válido por 1 hora)
+ *
+ * @returns Lista de todas as cartas com detalhes e imagens
+ * @throws ClashApiError com status 400, 403, 429 ou 503
  */
 export async function getCards(): Promise<CardsResponse> {
   const now = Date.now()
@@ -98,4 +101,84 @@ export async function getCards(): Promise<CardsResponse> {
   }
 
   return data
+}
+
+/**
+ * Normaliza e valida uma tag de jogador
+ * Tags devem conter apenas caracteres específicos do Clash Royale
+ * Lança ClashApiError com status 400 se inválida
+ */
+function normalizeTag(tag: string): string {
+  // Remove espaços e converte para maiúsculo
+  let normalized = tag.trim().toUpperCase()
+
+  // Adiciona # se não tiver
+  if (!normalized.startsWith('#')) {
+    normalized = `#${normalized}`
+  }
+
+  // Valida caracteres permitidos (apenas a-z maiúsculas específicas + números)
+  // Clash Royale usa: 0, 2, 8, 9, P, Y, L, Q, G, R, J, C, U, V
+  const validChars = /^#[0289PYLQGRJCUV]+$/
+  if (!validChars.test(normalized)) {
+    throw {
+      status: 400,
+      message: 'Invalid player tag format. Tags can only contain: 0, 2, 8, 9, P, Y, L, Q, G, R, J, C, U, V'
+    }
+  }
+
+  // URL-encoda para enviar na URL (# vira %23)
+  return encodeURIComponent(normalized)
+}
+
+/**
+ * Obtém informações de um jogador pela tag
+ * NÃO usa cache pois dados do jogador mudam frequentemente
+ * Retorna dados essenciais incluindo deck atual (sem badges, achievements, cards de coleção e progress)
+ *
+ * @param tag Tag do jogador (pode ser com ou sem #)
+ * @returns Dados essenciais do jogador (perfil, estatísticas e deck)
+ * @throws ClashApiError com status 400 se tag inválida
+ */
+export async function getPlayer(tag: string): Promise<PlayerProfile> {
+  const encodedTag = normalizeTag(tag)
+
+  console.log(`🔄 Fetching player ${tag} from Clash Royale API...`)
+  const fullPlayer = await fetchFromClash<Player>(`/players/${encodedTag}`)
+
+  const playerProfile: PlayerProfile = {
+    tag: fullPlayer.tag,
+    name: fullPlayer.name,
+    expLevel: fullPlayer.expLevel,
+    trophies: fullPlayer.trophies,
+    bestTrophies: fullPlayer.bestTrophies,
+    wins: fullPlayer.wins,
+    losses: fullPlayer.losses,
+    battleCount: fullPlayer.battleCount,
+    threeCrownWins: fullPlayer.threeCrownWins,
+    challengeCardsWon: fullPlayer.challengeCardsWon,
+    challengeMaxWins: fullPlayer.challengeMaxWins,
+    tournamentCardsWon: fullPlayer.tournamentCardsWon,
+    tournamentBattleCount: fullPlayer.tournamentBattleCount,
+    donations: fullPlayer.donations,
+    donationsReceived: fullPlayer.donationsReceived,
+    totalDonations: fullPlayer.totalDonations,
+    warDayWins: fullPlayer.warDayWins,
+    clanCardsCollected: fullPlayer.clanCardsCollected,
+    clan: fullPlayer.clan,
+    arena: fullPlayer.arena,
+    leagueStatistics: fullPlayer.leagueStatistics,
+    currentDeck: fullPlayer.currentDeck,
+    currentFavouriteCard: fullPlayer.currentFavouriteCard,
+    starPoints: fullPlayer.starPoints,
+    expPoints: fullPlayer.expPoints,
+    totalExpPoints: fullPlayer.totalExpPoints,
+    currentPathOfLegendSeasonResult: fullPlayer.currentPathOfLegendSeasonResult,
+    lastPathOfLegendSeasonResult: fullPlayer.lastPathOfLegendSeasonResult,
+    bestPathOfLegendSeasonResult: fullPlayer.bestPathOfLegendSeasonResult,
+    legacyTrophyRoadHighScore: fullPlayer.legacyTrophyRoadHighScore
+  }
+
+  console.log(`✅ Player data filtered: removed badges, achievements, cards collection, and progress`)
+  return playerProfile
 }

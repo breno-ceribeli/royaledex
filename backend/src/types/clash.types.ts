@@ -42,3 +42,151 @@ export interface CardsResponse {
   items: Card[]
   supportItems: SupportItem[]
 }
+
+/**
+ * Tipos relacionados a Players
+ */
+
+export interface PlayerClan {
+  tag: string
+  name: string
+  badgeId: number
+}
+
+export interface Arena {
+  id: number
+  name: string
+  rawName: string
+}
+
+/**
+ * Carta do jogador com nível e progresso
+ * Usado para currentDeck e coleção de cartas
+ */
+export interface PlayerCard {
+  name: string
+  id: number
+  level: number
+  starLevel?: number
+  evolutionLevel?: number
+  maxLevel: number
+  maxEvolutionLevel?: number
+  rarity: string
+  count?: number
+  elixirCost: number
+  iconUrls: CardIconUrls
+}
+
+/**
+ * Interface para estatísticas de liga do jogador
+ * Mostra performance nas temporadas atual, anterior e melhor temporada
+ */
+export interface PlayerLeagueStatistics {
+  currentSeason?: {
+    rank?: number
+    trophies?: number
+    bestTrophies?: number
+  }
+  previousSeason?: {
+    id: string
+    rank?: number
+    trophies?: number
+    bestTrophies?: number
+  }
+  bestSeason?: {
+    id: string
+    rank?: number
+    trophies?: number
+  }
+}
+
+/**
+ * Resultado de temporada do Path of Legend
+ * Liga competitiva com ranking global
+ */
+export interface PathOfLegendSeasonResult {
+  leagueNumber?: number
+  trophies?: number
+  rank?: number | null
+}
+
+/**
+ * Resposta completa da API do Clash Royale para um jogador
+ * Usado internamente para receber dados da API externa
+ * Não é exposto diretamente aos clientes
+ */
+export interface Player {
+  tag: string
+  name: string
+  expLevel: number
+  trophies: number
+  bestTrophies: number
+  wins: number
+  losses: number
+  battleCount: number
+  threeCrownWins: number
+  challengeCardsWon: number
+  challengeMaxWins: number
+  tournamentCardsWon: number
+  tournamentBattleCount: number
+  role?: string
+  donations: number
+  donationsReceived: number
+  totalDonations: number
+  warDayWins: number
+  clanCardsCollected: number
+  clan?: PlayerClan
+  arena: Arena
+  leagueStatistics?: PlayerLeagueStatistics
+  badges: unknown[]  // Filtrado - não tipado
+  achievements: unknown[]  // Filtrado - não tipado
+  cards: unknown[]  // Filtrado - não tipado
+  currentDeck: PlayerCard[]
+  progress?: unknown  // Filtrado - não tipado
+  currentFavouriteCard: Card
+  starPoints: number
+  expPoints: number
+  totalExpPoints?: number
+  currentPathOfLegendSeasonResult?: PathOfLegendSeasonResult
+  lastPathOfLegendSeasonResult?: PathOfLegendSeasonResult
+  bestPathOfLegendSeasonResult?: PathOfLegendSeasonResult
+  legacyTrophyRoadHighScore?: number
+}
+
+/**
+ * Dados essenciais do jogador (sem badges, achievements, cards de coleção e progress)
+ * Usado para retornar apenas informações de perfil e estatísticas principais
+ * Filtra ~50% do tamanho da resposta (remove arrays grandes e dados secundários)
+ */
+export interface PlayerProfile {
+  tag: string
+  name: string
+  expLevel: number
+  trophies: number
+  bestTrophies: number
+  wins: number
+  losses: number
+  battleCount: number
+  threeCrownWins: number
+  challengeCardsWon: number
+  challengeMaxWins: number
+  tournamentCardsWon: number
+  tournamentBattleCount: number
+  donations: number
+  donationsReceived: number
+  totalDonations: number
+  warDayWins: number
+  clanCardsCollected: number
+  clan?: PlayerClan
+  arena: Arena
+  leagueStatistics?: PlayerLeagueStatistics
+  currentDeck: PlayerCard[]
+  currentFavouriteCard: Card
+  starPoints: number
+  expPoints: number
+  totalExpPoints?: number
+  currentPathOfLegendSeasonResult?: PathOfLegendSeasonResult
+  lastPathOfLegendSeasonResult?: PathOfLegendSeasonResult
+  bestPathOfLegendSeasonResult?: PathOfLegendSeasonResult
+  legacyTrophyRoadHighScore?: number
+}
