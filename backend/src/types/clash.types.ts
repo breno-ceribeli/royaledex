@@ -190,3 +190,79 @@ export interface PlayerProfile {
   bestPathOfLegendSeasonResult?: PathOfLegendSeasonResult
   legacyTrophyRoadHighScore?: number
 }
+
+/**
+ * Tipos relacionados a Battlelog (histórico de batalhas)
+ */
+
+/**
+ * Modo de jogo da batalha
+ */
+export interface GameMode {
+  id: number
+  name: string
+}
+
+/**
+ * Support card com nível (usada em batalhas)
+ * Estende SupportItem adicionando o nível atual
+ */
+export interface BattleSupportCard extends SupportItem {
+  level: number
+}
+
+/**
+ * Carta em uma batalha (herda de PlayerCard mas sem count)
+ */
+export interface BattleCard {
+  name: string
+  id: number
+  level: number
+  starLevel?: number
+  evolutionLevel?: number
+  maxLevel: number
+  maxEvolutionLevel?: number
+  rarity: string
+  elixirCost: number
+  iconUrls: CardIconUrls
+}
+
+/**
+ * Dados de um jogador em uma batalha
+ */
+export interface PlayerBattleData {
+  tag: string
+  name: string
+  startingTrophies?: number
+  trophyChange?: number
+  crowns: number
+  kingTowerHitPoints: number
+  princessTowersHitPoints: number[] | null
+  clan?: PlayerClan
+  cards: BattleCard[]
+  supportCards?: BattleSupportCard[]
+  globalRank?: number | null
+  elixirLeaked: number
+}
+
+/**
+ * Estrutura de uma batalha individual
+ */
+export interface Battle {
+  type: string
+  battleTime: string
+  isLadderTournament: boolean
+  arena: Arena
+  gameMode: GameMode
+  deckSelection: string
+  team: PlayerBattleData[]
+  opponent: PlayerBattleData[]
+  isHostedMatch: boolean
+  leagueNumber?: number
+}
+
+/**
+ * Resposta do endpoint /players/{tag}/battlelog
+ * Lista de batalhas recentes do jogador (geralmente últimas 25)
+ */
+export type BattleLog = Battle[]

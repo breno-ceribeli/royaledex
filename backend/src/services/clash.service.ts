@@ -1,4 +1,4 @@
-import { CardsResponse, ClashApiError, Player, PlayerProfile } from '../types/clash.types'
+import { CardsResponse, ClashApiError, Player, PlayerProfile, BattleLog } from '../types/clash.types'
 
 // Cache global para lista de cartas — válido por 1 hora
 interface CacheEntry<T> {
@@ -181,4 +181,21 @@ export async function getPlayer(tag: string): Promise<PlayerProfile> {
 
   console.log(`✅ Player data filtered: removed badges, achievements, cards collection, and progress`)
   return playerProfile
+}
+
+/**
+ * Obtém o histórico de batalhas recentes de um jogador
+ *
+ * @param tag Tag do jogador (pode ser com ou sem #)
+ * @returns Lista de batalhas recentes (geralmente últimas 25)
+ * @throws ClashApiError com status 400 se tag inválida
+ */
+export async function getBattleLog(tag: string): Promise<BattleLog> {
+  const encodedTag = normalizeTag(tag)
+
+  console.log(`🔄 Fetching battle log for player ${tag} from Clash Royale API...`)
+  const battleLog = await fetchFromClash<BattleLog>(`/players/${encodedTag}/battlelog`)
+
+  console.log(`✅ Battle log retrieved: ${battleLog.length} battles found`)
+  return battleLog
 }
