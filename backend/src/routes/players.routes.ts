@@ -110,7 +110,7 @@ router.get('/:tag', playersController.getPlayerByTag)
  * /players/{playerTag}/battlelog:
  *   get:
  *     summary: Get player's recent battle history
- *     description: Returns list of recent battles for a player (usually last 25 battles). Includes battle type, opponent info, trophies, and results.
+ *     description: Returns list of recent battles for a player (usually last 30 battles). Includes battle type, opponent info, trophies, and results.
  *     tags: [Players]
  *     parameters:
  *       - in: path
@@ -168,5 +168,114 @@ router.get('/:tag', playersController.getPlayerByTag)
  *         description: Clash Royale API temporarily unavailable
  */
 router.get('/:tag/battlelog', playersController.getBattleLog)
+
+/**
+ * @swagger
+ * /players/{playerTag}/battlelog/stats:
+ *   get:
+ *     summary: Get aggregated statistics from player's battle history
+ *     description: Calculates and returns statistics based only on competitive battles (PvP and Path of Legend). Includes win rate, average trophy change, most lost against cards, and crowns distribution.
+ *     tags: [Players]
+ *     parameters:
+ *       - in: path
+ *         name: playerTag
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Player tag (e.g., '#2PYL' or '2PYL')
+ *         example: '#2PYL'
+ *     responses:
+ *       200:
+ *         description: Battle statistics successfully calculated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalBattles:
+ *                   type: integer
+ *                   description: Total number of competitive battles analyzed (PvP + Path of Legend only)
+ *                   example: 18
+ *                 pvpBattles:
+ *                   type: integer
+ *                   description: Number of PvP battles
+ *                   example: 10
+ *                 pathOfLegendBattles:
+ *                   type: integer
+ *                   description: Number of Path of Legend battles
+ *                   example: 8
+ *                 wins:
+ *                   type: integer
+ *                   description: Number of victories
+ *                   example: 10
+ *                 losses:
+ *                   type: integer
+ *                   description: Number of defeats
+ *                   example: 7
+ *                 draws:
+ *                   type: integer
+ *                   description: Number of draws
+ *                   example: 1
+ *                 winRate:
+ *                   type: number
+ *                   format: float
+ *                   description: Win rate as decimal (0.0 to 1.0)
+ *                   example: 0.56
+ *                 avgTrophyChange:
+ *                   type: number
+ *                   format: float
+ *                   nullable: true
+ *                   description: Average trophy change per battle (only calculated for battles with trophies, null if none)
+ *                   example: 2.5
+ *                 avgElixirLeaked:
+ *                   type: number
+ *                   format: float
+ *                   description: Average elixir leaked per battle
+ *                   example: 12.3
+ *                 mostLostAgainstCards:
+ *                   type: array
+ *                   description: Top 10 cards most frequently faced in losses
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       name:
+ *                         type: string
+ *                         example: 'Hog Rider'
+ *                       count:
+ *                         type: integer
+ *                         description: Number of times faced in losses
+ *                         example: 5
+ *                       percentage:
+ *                         type: integer
+ *                         description: Percentage of losses where this card appeared
+ *                         example: 71
+ *                 crownsDistribution:
+ *                   type: object
+ *                   description: Distribution of crowns won in battles
+ *                   properties:
+ *                     0:
+ *                       type: integer
+ *                       example: 3
+ *                     1:
+ *                       type: integer
+ *                       example: 5
+ *                     2:
+ *                       type: integer
+ *                       example: 7
+ *                     3:
+ *                       type: integer
+ *                       example: 3
+ *       400:
+ *         description: Invalid player tag format
+ *       404:
+ *         description: Player not found
+ *       429:
+ *         description: Rate limit exceeded
+ *       500:
+ *         description: Server error
+ *       503:
+ *         description: Clash Royale API temporarily unavailable
+ */
+router.get('/:tag/battlelog/stats', playersController.getBattleLogStats)
 
 export default router

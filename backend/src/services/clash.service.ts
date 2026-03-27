@@ -1,4 +1,4 @@
-import { CardsResponse, ClashApiError, Player, PlayerProfile, BattleLog } from '../types/clash.types'
+import { CardsResponse, ClashApiError, Player, PlayerProfile, BattleLog, BattleLogStats, CardLossStats, CrownsDistribution } from '../types/clash.types'
 
 // Cache global para lista de cartas — válido por 1 hora
 interface CacheEntry<T> {
@@ -187,7 +187,7 @@ export async function getPlayer(tag: string): Promise<PlayerProfile> {
  * Obtém o histórico de batalhas recentes de um jogador
  *
  * @param tag Tag do jogador (pode ser com ou sem #)
- * @returns Lista de batalhas recentes (geralmente últimas 25)
+ * @returns Lista de batalhas recentes (geralmente últimas 30)
  * @throws ClashApiError com status 400 se tag inválida
  */
 export async function getBattleLog(tag: string): Promise<BattleLog> {
@@ -198,4 +198,118 @@ export async function getBattleLog(tag: string): Promise<BattleLog> {
 
   console.log(`✅ Battle log retrieved: ${battleLog.length} battles found`)
   return battleLog
+}
+
+/**
+ * Calcula estatísticas agregadas do histórico de batalhas
+ * Considera apenas batalhas PvP e Path of Legend
+ * NÃO usa cache pois estatísticas devem refletir dados mais recentes
+ *
+ * @param tag Tag do jogador (pode ser com ou sem #)
+ * @returns Estatísticas calculadas (win rate, cartas mais perdidas, etc)
+ * @throws ClashApiError com status 400 se tag inválida
+ */
+export async function getBattleLogStats(tag: string): Promise<BattleLogStats> {
+  // Busca histórico de batalhas
+  const battleLog = await getBattleLog(tag)
+
+  // Filtra apenas batalhas competitivas (PvP e Path of Legend) - case insensitive
+  const competitiveBattles = battleLog.filter(battle => {
+    const type = battle.type.toLowerCase()
+    return type === 'pvp' || type === 'pathoflegend'
+  })
+
+  const pvpCount = competitiveBattles.filter(b => b.type.toLowerCase() === 'pvp').length
+  const pathOfLegendCount = competitiveBattles.filter(b => b.type.toLowerCase() === 'pathoflegend').length
+
+  // Calcula vitórias, derrotas e empates
+  let wins = 0
+  let losses = 0
+  let draws = 0
+
+  const crownsDistribution: CrownsDistribution = { 0: 0, 1: 0, 2: 0, 3: 0 }
+  const lossCards: string[] = []
+  let totalTrophyChange = 0
+  let trophyChangeBattles = 0
+  let totalElixirLeaked = 0
+
+  competitiveBattles.forEach(battle => {
+    const playerCrowns = battle.team[0].crowns
+    const opponentCrowns = battle.opponent[0].crowns
+
+    // Conta vitórias, derrotas e empates
+    if (playerCrowns > opponentCrowns) {
+      wins++
+    } else if (playerCrowns < opponentCrowns) {
+      losses++
+      // Armazena cartas do oponente em derrotas
+      battle.opponent[0].cards.forEach(card => {
+        lossCards.push(card.name)
+      })
+    } else {
+      draws++
+    }
+
+    // Distribuição de coroas
+    if (playerCrowns >= 0 && playerCrowns <= 3) {
+      crownsDistribution[playerCrowns as 0 | 1 | 2 | 3]++
+    }
+
+    // Soma trophy change (apenas em batalhas que têm)
+    if (battle.team[0].trophyChange !== undefined) {
+      totalTrophyChange += battle.team[0].trophyChange
+      trophyChangeBattles++
+    }
+
+    // Soma elixir leaked
+    totalElixirLeaked += battle.team[0].elixirLeaked
+  })
+
+  // Calcula média de trophy change (null se nenhuma batalha tiver)
+  const avgTrophyChange = trophyChangeBattles > 0 
+    ? Math.round((totalTrophyChange / trophyChangeBattles) * 10) / 10
+    : null
+
+  // Calcula média de elixir leaked
+  const avgElixirLeaked = competitiveBattles.length > 0
+    ? Math.round((totalElixirLeaked / competitiveBattles.length) * 10) / 10
+    : 0
+
+  // Calcula win rate
+  const winRate = competitiveBattles.length > 0
+    ? Math.round((wins / competitiveBattles.length) * 100) / 100
+    : 0
+
+  // Agrupa e conta cartas em derrotas
+  const cardCount = lossCards.reduce((acc, card) => {
+    acc[card] = (acc[card] || 0) + 1
+    return acc
+  }, {} as Record<string, number>)
+
+  // Ordena por frequência e pega top 10
+  const mostLostAgainstCards: CardLossStats[] = Object.entries(cardCount)
+    .map(([name, count]) => ({
+      name,
+      count,
+      percentage: Math.round((count / losses) * 100)
+    }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10)
+
+  const stats: BattleLogStats = {
+    totalBattles: competitiveBattles.length,
+    pvpBattles: pvpCount,
+    pathOfLegendBattles: pathOfLegendCount,
+    wins,
+    losses,
+    draws,
+    winRate,
+    avgTrophyChange,
+    avgElixirLeaked,
+    mostLostAgainstCards,
+    crownsDistribution
+  }
+
+  console.log(`✅ Stats calculated: ${wins}W/${losses}L/${draws}D (${(winRate * 100).toFixed(0)}% WR)`)
+  return stats
 }

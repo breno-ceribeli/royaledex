@@ -263,6 +263,43 @@ export interface Battle {
 
 /**
  * Resposta do endpoint /players/{tag}/battlelog
- * Lista de batalhas recentes do jogador (geralmente últimas 25)
+ * Lista de batalhas recentes do jogador (geralmente últimas 30)
  */
 export type BattleLog = Battle[]
+
+/**
+ * Estatísticas de cartas mais enfrentadas em derrotas
+ */
+export interface CardLossStats {
+  name: string
+  count: number
+  percentage: number
+}
+
+/**
+ * Distribuição de coroas nas batalhas
+ */
+export interface CrownsDistribution {
+  0: number
+  1: number
+  2: number
+  3: number
+}
+
+/**
+ * Estatísticas agregadas do histórico de batalhas
+ * Calculado apenas com batalhas PvP e Path of Legend
+ */
+export interface BattleLogStats {
+  totalBattles: number
+  pvpBattles: number
+  pathOfLegendBattles: number
+  wins: number
+  losses: number
+  draws: number
+  winRate: number
+  avgTrophyChange: number | null
+  avgElixirLeaked: number
+  mostLostAgainstCards: CardLossStats[]
+  crownsDistribution: CrownsDistribution
+}
