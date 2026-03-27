@@ -234,7 +234,7 @@ router.get('/:tag/battlelog', playersController.getBattleLog)
  *                   example: 12.3
  *                 mostLostAgainstCards:
  *                   type: array
- *                   description: Top 10 cards most frequently faced in losses
+ *                   description: Top 10 cards with highest loss rate when faced. Sorted by number of losses.
  *                   items:
  *                     type: object
  *                     properties:
@@ -243,12 +243,12 @@ router.get('/:tag/battlelog', playersController.getBattleLog)
  *                         example: 'Hog Rider'
  *                       count:
  *                         type: integer
- *                         description: Number of times faced in losses
- *                         example: 5
+ *                         description: Number of times lost against this card
+ *                         example: 4
  *                       percentage:
  *                         type: integer
- *                         description: Percentage of losses where this card appeared
- *                         example: 71
+ *                         description: Loss rate when facing this card (losses / total appearances)
+ *                         example: 80
  *                 crownsDistribution:
  *                   type: object
  *                   description: Distribution of crowns won in battles

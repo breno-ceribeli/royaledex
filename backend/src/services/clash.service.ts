@@ -228,7 +228,8 @@ export async function getBattleLogStats(tag: string): Promise<BattleLogStats> {
   let draws = 0
 
   const crownsDistribution: CrownsDistribution = { 0: 0, 1: 0, 2: 0, 3: 0 }
-  const lossCards: string[] = []
+  const cardLossCount: Record<string, number> = {} // Quantas derrotas contra cada carta
+  const cardTotalCount: Record<string, number> = {} // Quantas vezes enfrentou cada carta
   let totalTrophyChange = 0
   let trophyChangeBattles = 0
   let totalElixirLeaked = 0
@@ -236,16 +237,23 @@ export async function getBattleLogStats(tag: string): Promise<BattleLogStats> {
   competitiveBattles.forEach(battle => {
     const playerCrowns = battle.team[0].crowns
     const opponentCrowns = battle.opponent[0].crowns
+    const isLoss = playerCrowns < opponentCrowns
+
+    // Conta aparições de cada carta do oponente em TODAS as batalhas
+    battle.opponent[0].cards.forEach(card => {
+      cardTotalCount[card.name] = (cardTotalCount[card.name] || 0) + 1
+      
+      // Se perdeu, conta também nas derrotas
+      if (isLoss) {
+        cardLossCount[card.name] = (cardLossCount[card.name] || 0) + 1
+      }
+    })
 
     // Conta vitórias, derrotas e empates
     if (playerCrowns > opponentCrowns) {
       wins++
-    } else if (playerCrowns < opponentCrowns) {
+    } else if (isLoss) {
       losses++
-      // Armazena cartas do oponente em derrotas
-      battle.opponent[0].cards.forEach(card => {
-        lossCards.push(card.name)
-      })
     } else {
       draws++
     }
@@ -280,20 +288,18 @@ export async function getBattleLogStats(tag: string): Promise<BattleLogStats> {
     ? Math.round((wins / competitiveBattles.length) * 100) / 100
     : 0
 
-  // Agrupa e conta cartas em derrotas
-  const cardCount = lossCards.reduce((acc, card) => {
-    acc[card] = (acc[card] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
-
-  // Ordena por frequência e pega top 10
-  const mostLostAgainstCards: CardLossStats[] = Object.entries(cardCount)
-    .map(([name, count]) => ({
-      name,
-      count,
-      percentage: Math.round((count / losses) * 100)
-    }))
-    .sort((a, b) => b.count - a.count)
+  // Calcula estatísticas das cartas mais perdidas
+  // Percentual = (derrotas contra carta / total de vezes que enfrentou carta) * 100
+  const mostLostAgainstCards: CardLossStats[] = Object.entries(cardLossCount)
+    .map(([name, lossCount]) => {
+      const totalCount = cardTotalCount[name] || 1
+      return {
+        name,
+        count: lossCount,
+        percentage: Math.round((lossCount / totalCount) * 100)
+      }
+    })
+    .sort((a, b) => b.count - a.count) // Ordena por número de derrotas
     .slice(0, 10)
 
   const stats: BattleLogStats = {

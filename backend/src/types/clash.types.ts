@@ -268,12 +268,12 @@ export interface Battle {
 export type BattleLog = Battle[]
 
 /**
- * Estatísticas de cartas mais enfrentadas em derrotas
+ * Estatísticas de taxa de derrota contra cartas específicas
  */
 export interface CardLossStats {
-  name: string
-  count: number
-  percentage: number
+  name: string        // Nome da carta
+  count: number       // Quantas vezes perdeu contra essa carta
+  percentage: number  // Taxa de derrota: (derrotas / total de vezes que enfrentou) * 100
 }
 
 /**
