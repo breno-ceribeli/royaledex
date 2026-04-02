@@ -5,7 +5,7 @@ export function Home() {
   const [tag, setTag] = useState('')
   const navigate = useNavigate()
 
-  const handleSearch = (e: { preventDefault: () => void }) => {
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (tag.trim()) {
       // Navega para o perfil do jogador (SPA navigation)
