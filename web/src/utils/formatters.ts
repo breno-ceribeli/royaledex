@@ -1,0 +1,1 @@
+export const formatTag = (tag: string) => tag.startsWith('#') ? tag.slice(1) : tag
