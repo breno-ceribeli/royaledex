@@ -51,6 +51,23 @@ export function Home() {
     [cards, randomSeed]
   )
 
+  const mobileDecorativeCards = useMemo(() => {
+    if (decorativeCards.length === 0) {
+      return []
+    }
+
+    if (decorativeCards.length >= 8) {
+      return decorativeCards
+    }
+
+    const expandedCards: Card[] = []
+    while (expandedCards.length < 8) {
+      expandedCards.push(...decorativeCards)
+    }
+
+    return expandedCards.slice(0, 8)
+  }, [decorativeCards])
+
   const showCards = decorativeCards.length > 0
 
   return (
@@ -58,7 +75,7 @@ export function Home() {
       <div className="pointer-events-none absolute left-1/2 top-32 h-200 w-200 -translate-x-1/2 rounded-full bg-[#F0C040]/5 blur-[120px]" />
       <div className="pointer-events-none absolute right-0 top-16 h-100 w-100 rounded-full bg-[#7B2FBE]/10 blur-[100px]" />
 
-      <section className="relative py-20 md:py-28">
+      <section className="relative py-20 md:py-32">
         <div className="mx-auto max-w-7xl px-4 text-center">
           <h1 className="mb-6 text-4xl font-bold text-white md:text-6xl lg:text-7xl">
             Domine a <span className="text-gold-gradient">Arena</span>
@@ -68,13 +85,13 @@ export function Home() {
             Estatísticas completas de jogadores, análise de batalhas e muito mais, tudo aqui para você, meu rei
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Link to="/cards" className="gold-button">
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
+            <Link to="/cards" className="gold-button w-full sm:w-auto">
               Explorar cartas
             </Link>
             <Link
               to="/favorites"
-              className="rounded-xl border border-[#F0C040]/25 bg-[#1A2B3C] px-4 py-2.5 text-sm font-semibold text-[#F0C040] transition-colors hover:border-[#F0C040]/50 hover:bg-[#243B53]"
+              className="w-full rounded-xl border border-[#F0C040]/25 bg-[#1A2B3C] px-4 py-2.5 text-center text-sm font-semibold text-[#F0C040] transition-colors hover:border-[#F0C040]/50 hover:bg-[#243B53] sm:w-auto"
             >
               Abrir favoritos
             </Link>
@@ -107,15 +124,15 @@ export function Home() {
 
           {!loading && showCards && (
             <>
-              <div className="-mx-4 overflow-x-auto px-4 pb-4 pt-3 scrollbar-hide md:hidden">
-                <div className="flex w-max gap-4 pl-2">
-                  {decorativeCards.map((card, index) => (
+              <div className="-mx-4 overflow-x-auto overscroll-x-contain px-4 pb-4 pt-3 scrollbar-hide touch-pan-x md:hidden">
+                <div className="flex w-max snap-x snap-mandatory gap-4 pl-2">
+                  {mobileDecorativeCards.map((card, index) => (
                     <HomeCardDisplay
-                      key={card.id}
+                      key={`${card.id}-${index}`}
                       card={card}
                       size="md"
                       rotation={index % 2 === 0 ? -3 : 3}
-                      className="shrink-0 shadow-lg shadow-[#F0C040]/10"
+                      className="shrink-0 snap-center shadow-lg shadow-[#F0C040]/10"
                     />
                   ))}
                 </div>

@@ -8,8 +8,8 @@ interface HomeCardDisplayProps {
 }
 
 const sizeClasses = {
-  md: 'w-24 h-34',
-  lg: 'w-32 h-44',
+  md: 'w-24 h-32',
+  lg: 'w-32 h-40',
 }
 
 const textClasses = {
