@@ -24,14 +24,11 @@ export function Login() {
       } else {
         await signIn(email, password)
       }
-      // Auth context vai atualizar automaticamente
       navigate('/')
     } catch (err: unknown) {
-      // Traduz erro do Firebase para português
       const errorMessage = getFirebaseErrorMessage(err)
       setError(errorMessage)
     } finally {
-      // Garante que loading é resetado mesmo em caso de erro
       setLoading(false)
     }
   }
@@ -44,46 +41,71 @@ export function Login() {
       await signInWithGoogle()
       navigate('/')
     } catch (err: unknown) {
-      // Traduz erro do Firebase para português
       const errorMessage = getFirebaseErrorMessage(err)
       setError(errorMessage)
     } finally {
-      // Garante que loading é resetado mesmo se fechar o popup
       setLoading(false)
     }
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-md mx-auto">
-        <div className="bg-white p-8 rounded-lg shadow-lg">
-          <h1 className="text-2xl font-bold mb-6 text-center">
-            {isSignUp ? 'Criar Conta' : 'Entrar'}
-          </h1>
+    <section className="royale-page">
+      <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 lg:grid-cols-[1.2fr_1fr]">
+        <article className="royale-card hidden p-9 lg:block">
+          <p className="text-xs uppercase tracking-[0.28em] text-rd-primary-deep">The Royal Archive</p>
+          <h1 className="royale-title mt-4 text-5xl leading-[1.05]">Acesse sua conta RoyaleDex</h1>
+          <p className="mt-4 max-w-md text-sm text-rd-muted">
+            Entre para salvar favoritos, acompanhar perfis e manter sua analise sincronizada com o backend.
+          </p>
 
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {error}
+          <div className="mt-8 space-y-4 text-sm text-rd-muted">
+            <div className="royale-card-soft flex items-center gap-3 p-3">
+              <span className="material-symbols-outlined text-rd-primary">shield_lock</span>
+              <span>Autenticacao via Firebase com sessao persistente.</span>
             </div>
-          )}
+            <div className="royale-card-soft flex items-center gap-3 p-3">
+              <span className="material-symbols-outlined text-rd-primary">sync</span>
+              <span>Favoritos sincronizados por usuario no backend.</span>
+            </div>
+          </div>
+        </article>
+
+        <article className="royale-card p-6 sm:p-8">
+          <div className="mb-6 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.26em] text-rd-muted">Conta</p>
+              <h2 className="royale-title mt-2 text-3xl">{isSignUp ? 'Criar conta' : 'Entrar'}</h2>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setIsSignUp(!isSignUp)
+                setError('')
+              }}
+              disabled={loading}
+              className="ghost-button px-3 py-2 text-sm"
+            >
+              {isSignUp ? 'Fazer login' : 'Cadastrar'}
+            </button>
+          </div>
+
+          {error && <div className="mb-4 rounded-xl border border-[rgba(255,140,130,0.35)] bg-[rgba(147,0,10,0.35)] px-4 py-3 text-sm">{error}</div>}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Email</label>
+            <label className="block text-xs font-bold uppercase tracking-[0.24em] text-rd-muted">
+              Email
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={loading}
-                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                className="input-royal mt-2"
               />
-            </div>
+            </label>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Senha
-              </label>
+            <label className="block text-xs font-bold uppercase tracking-[0.24em] text-rd-muted">
+              Senha
               <input
                 type="password"
                 value={password}
@@ -91,74 +113,41 @@ export function Login() {
                 required
                 minLength={6}
                 disabled={loading}
-                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                className="input-royal mt-2"
               />
-              {isSignUp && (
-                <p className="text-xs text-gray-500 mt-1">
-                  Mínimo de 6 caracteres
-                </p>
-              )}
-            </div>
+            </label>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Carregando...' : isSignUp ? 'Cadastrar' : 'Entrar'}
+            {isSignUp && <p className="text-xs text-rd-muted">Minimo de 6 caracteres.</p>}
+
+            <button type="submit" disabled={loading} className="gold-button w-full">
+              {loading ? 'Carregando...' : isSignUp ? 'Criar conta' : 'Entrar'}
             </button>
           </form>
 
-          <div className="my-4 text-center text-gray-500">ou</div>
+          {!isSignUp && (
+            <>
+              <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-[0.24em] text-rd-muted">
+                <span className="h-px flex-1 bg-[rgba(240,192,64,0.16)]" />
+                ou
+                <span className="h-px flex-1 bg-[rgba(240,192,64,0.16)]" />
+              </div>
+              <button
+                onClick={handleGoogleSignIn}
+                disabled={loading}
+                className="w-full rounded-xl border border-[rgba(240,192,64,0.2)] bg-rd-surface-high px-4 py-3 text-sm font-semibold transition-colors hover:bg-[rgba(30,43,59,0.65)] disabled:opacity-70"
+              >
+                Continuar com Google
+              </button>
+            </>
+          )}
 
-          <button
-            onClick={handleGoogleSignIn}
-            disabled={loading}
-            className="w-full bg-white border border-gray-300 text-gray-700 py-2 rounded hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
-              <path
-                fill="#4285F4"
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-              />
-            </svg>
-            {loading ? 'Carregando...' : 'Continuar com Google'}
-          </button>
-
-          <div className="mt-4 text-center">
-            <button
-              onClick={() => {
-                setIsSignUp(!isSignUp)
-                setError('') // Limpa erro ao trocar modo
-              }}
-              disabled={loading}
-              className="text-blue-600 hover:underline disabled:text-gray-400"
-            >
-              {isSignUp
-                ? 'Já tem uma conta? Entrar'
-                : 'Não tem uma conta? Cadastrar'}
-            </button>
-          </div>
-
-          <div className="mt-4 text-center">
-            <Link to="/" className="text-gray-600 hover:underline">
-              Voltar para Home
+          <div className="mt-6 text-center text-sm text-rd-muted">
+            <Link to="/" className="text-rd-primary hover:underline">
+              Voltar para home
             </Link>
           </div>
-        </div>
+        </article>
       </div>
-    </div>
+    </section>
   )
 }

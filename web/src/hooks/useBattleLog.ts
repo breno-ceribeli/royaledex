@@ -33,8 +33,39 @@ export function useBattleLog(tag: string) {
   }, [tag])
 
   useEffect(() => {
-    fetchBattleLog()
-  }, [fetchBattleLog])
+    if (!tag) {
+      setLoading(false)
+      return
+    }
+
+    let isMounted = true
+
+    async function loadBattleLog() {
+      try {
+        setLoading(true)
+        setError('')
+        const battles = await playerService.getBattleLog(tag)
+        if (isMounted) {
+          setData(battles)
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(getApiErrorMessage(err))
+          setData([])
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadBattleLog()
+
+    return () => {
+      isMounted = false
+    }
+  }, [tag])
 
   return { 
     data, 

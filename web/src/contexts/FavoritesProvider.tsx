@@ -9,6 +9,8 @@ interface FavoritesProviderProps {
   children: ReactNode
 }
 
+const MAX_FAVORITES = 15
+
 export function FavoritesProvider({ children }: FavoritesProviderProps) {
   const { user } = useAuth()
   const [favorites, setFavorites] = useState<FavoritePlayer[]>([])
@@ -48,6 +50,12 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
   const addFavorite = async (tag: string, name: string): Promise<void> => {
     if (!user) {
       setActionError('Você precisa estar autenticado para adicionar favoritos')
+      return
+    }
+
+    // Validar limite
+    if (favorites.length >= MAX_FAVORITES) {
+      setActionError(`Você atingiu o limite de ${MAX_FAVORITES} favoritos`)
       return
     }
 
@@ -123,8 +131,42 @@ export function FavoritesProvider({ children }: FavoritesProviderProps) {
 
   // Buscar favoritos quando usuário autenticar/desautenticar
   useEffect(() => {
-    fetchFavorites()
-  }, [fetchFavorites])
+    if (!user) {
+      setFavorites([])
+      setLoading(false)
+      setError('')
+      return
+    }
+
+    let isMounted = true
+
+    async function loadFavorites() {
+      try {
+        setLoading(true)
+        setError('')
+        const data = await favoriteService.listPlayers()
+        if (isMounted) {
+          setFavorites(data)
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(getApiErrorMessage(err))
+          setFavorites([])
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadFavorites()
+
+    return () => {
+      isMounted = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.uid]) // Depende apenas do UID do usuário
 
   return (
     <FavoritesContext.Provider

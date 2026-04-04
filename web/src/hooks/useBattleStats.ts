@@ -33,8 +33,39 @@ export function useBattleStats(tag: string) {
   }, [tag])
 
   useEffect(() => {
-    fetchStats()
-  }, [fetchStats])
+    if (!tag) {
+      setLoading(false)
+      return
+    }
+
+    let isMounted = true
+
+    async function loadStats() {
+      try {
+        setLoading(true)
+        setError('')
+        const stats = await playerService.getBattleStats(tag)
+        if (isMounted) {
+          setData(stats)
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(getApiErrorMessage(err))
+          setData(null)
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadStats()
+
+    return () => {
+      isMounted = false
+    }
+  }, [tag])
 
   return { 
     data, 

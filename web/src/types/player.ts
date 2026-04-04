@@ -168,26 +168,27 @@ export type BattleLog = Battle[]
  */
 
 export interface CardLossStats {
-  cardName: string
-  lossCount: number
-  totalCount: number
-  percentage: number
+  name: string        // Nome da carta
+  count: number       // Número de derrotas contra essa carta
+  percentage: number  // Percentual de derrota
 }
 
 export interface CrownsDistribution {
-  zeroCrowns: number
-  oneCrown: number
-  twoCrowns: number
-  threeCrowns: number
+  0: number
+  1: number
+  2: number
+  3: number
 }
 
 export interface BattleLogStats {
   totalBattles: number
+  pvpBattles: number
+  pathOfLegendBattles: number
   wins: number
   losses: number
   draws: number
   winRate: number
-  avgTrophyChange: number
+  avgTrophyChange: number | null
   avgElixirLeaked: number
   mostLostAgainstCards: CardLossStats[]
   crownsDistribution: CrownsDistribution

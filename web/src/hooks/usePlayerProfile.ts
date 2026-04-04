@@ -33,8 +33,39 @@ export function usePlayerProfile(tag: string) {
   }, [tag])
 
   useEffect(() => {
-    fetchProfile()
-  }, [fetchProfile])
+    if (!tag) {
+      setLoading(false)
+      return
+    }
+
+    let isMounted = true
+
+    async function loadProfile() {
+      try {
+        setLoading(true)
+        setError('')
+        const profile = await playerService.getProfile(tag)
+        if (isMounted) {
+          setData(profile)
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(getApiErrorMessage(err))
+          setData(null)
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadProfile()
+
+    return () => {
+      isMounted = false
+    }
+  }, [tag])
 
   return { 
     data, 
