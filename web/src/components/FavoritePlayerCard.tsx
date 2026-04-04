@@ -19,7 +19,7 @@ export function FavoritePlayerCard({ player }: FavoritePlayerCardProps) {
   }
 
   const handleClick = () => {
-    navigate(`/players/${normalizedTag}`)
+    navigate(`/players/${encodeURIComponent(normalizedTag)}`)
   }
 
   return (

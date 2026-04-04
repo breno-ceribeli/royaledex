@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import { Navbar } from './components/Navbar'
+import { Footer } from './components/Footer'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { Home } from './pages/Home'
 import { Login } from './pages/Login'
@@ -9,43 +10,49 @@ import { Favorites } from './pages/Favorites'
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="flex min-h-screen flex-col bg-[#0D1B2A] text-white">
       <Navbar />
 
-      <Routes>
-        {/* Rota pública - Home com busca de jogador */}
-        <Route path="/" element={<Home />} />
+      <main className="flex-1">
+        <Routes>
+          {/* Rota publica - Home com destaques */}
+          <Route path="/" element={<Home />} />
 
-        {/* Rota pública - Login/Cadastro */}
-        <Route path="/login" element={<Login />} />
+          {/* Rota publica - Login/Cadastro */}
+          <Route path="/login" element={<Login />} />
 
-        {/* Rota pública - Cards (com hover para detalhes) */}
-        <Route path="/cards" element={<Cards />} />
+          {/* Rota publica - Cards */}
+          <Route path="/cards" element={<Cards />} />
 
-        {/* Rota pública - Perfil do jogador */}
-        <Route path="/players/:tag" element={<PlayerProfile />} />
+          {/* Rota publica - Perfil do jogador */}
+          <Route path="/players/:tag" element={<PlayerProfile />} />
 
-        {/* Rota protegida - Favoritos (requer login) */}
-        <Route
-          path="/favorites"
-          element={
-            <ProtectedRoute>
-              <Favorites />
-            </ProtectedRoute>
-          }
-        />
+          {/* Rota protegida - Favoritos (requer login) */}
+          <Route
+            path="/favorites"
+            element={
+              <ProtectedRoute>
+                <Favorites />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Fallback - 404 */}
-        <Route
-          path="*"
-          element={
-            <div className="container mx-auto px-4 py-8 text-center">
-              <h1 className="text-4xl font-bold mb-4">404</h1>
-              <p className="text-gray-600">Página não encontrada</p>
-            </div>
-          }
-        />
-      </Routes>
+          {/* Fallback - 404 */}
+          <Route
+            path="*"
+            element={
+              <section className="royale-page">
+                <div className="royale-card p-10 text-center">
+                  <h1 className="text-4xl font-bold">404</h1>
+                  <p className="mt-3 text-rd-muted">Pagina nao encontrada.</p>
+                </div>
+              </section>
+            }
+          />
+        </Routes>
+      </main>
+
+      <Footer />
     </div>
   )
 }
