@@ -11,16 +11,18 @@ dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 3001
+const RATE_LIMIT_WINDOW_MS = Number(process.env.RATE_LIMIT_WINDOW_MS || 60 * 1000)
+const RATE_LIMIT_MAX = Number(process.env.RATE_LIMIT_MAX || 90)
 
 // Health check endpoint (sem middlewares)
 app.get('/health', (_, res) => {
   res.json({ status: 'ok', message: 'RoyaleDex backend is running' })
 })
 
-// Rate limiter — 30 requisições por minuto por IP
+// Rate limiter global por IP
 const limiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 30,
+  windowMs: RATE_LIMIT_WINDOW_MS,
+  max: RATE_LIMIT_MAX,
   message: { error: 'Too many requests, please try again later.' }
 })
 
