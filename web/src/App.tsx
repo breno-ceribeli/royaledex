@@ -1,4 +1,5 @@
-import { Routes, Route } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { Navbar } from './components/Navbar'
 import { Footer } from './components/Footer'
 import { ProtectedRoute } from './components/ProtectedRoute'
@@ -8,9 +9,20 @@ import { Cards } from './pages/Cards'
 import { PlayerProfile } from './pages/PlayerProfile'
 import { Favorites } from './pages/Favorites'
 
+function ScrollToTopOnRouteChange() {
+  const location = useLocation()
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  }, [location.pathname])
+
+  return null
+}
+
 function App() {
   return (
     <div className="flex min-h-screen flex-col bg-[#0D1B2A] text-white">
+      <ScrollToTopOnRouteChange />
       <Navbar />
 
       <main className="flex-1">

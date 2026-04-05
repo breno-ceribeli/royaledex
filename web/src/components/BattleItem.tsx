@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import type { Battle, BattleCard } from '../types'
 import { formatTag } from '../utils/formatters'
 
@@ -48,7 +49,7 @@ function DeckGrid({ cards, side }: { cards?: BattleCard[]; side: 'player' | 'opp
         <div
           key={`${side}-${card.id || idx}`}
           className="rounded-md border border-[rgba(240,192,64,0.14)] bg-[rgba(17,25,53,0.58)] p-1"
-          title={`${card.name} (Nv. ${card.level})`}
+          title={card.name}
         >
           <img
             src={card.iconUrls?.medium || ''}
@@ -58,7 +59,6 @@ function DeckGrid({ cards, side }: { cards?: BattleCard[]; side: 'player' | 'opp
               ;(event.target as HTMLImageElement).style.display = 'none'
             }}
           />
-          <p className="mt-1 truncate text-center text-[10px] text-rd-muted">Nv. {card.level}</p>
         </div>
       ))}
     </div>
@@ -123,9 +123,7 @@ export function BattleItem({ battle, playerTag }: BattleItemProps) {
           </span>
           <span className="text-rd-muted">{formatBattleDate(battle.battleTime)}</span>
           <span className="inline-flex items-center gap-1 text-rd-primary">
-            <span className="material-symbols-rounded text-base">
-              {showDetails ? 'keyboard_arrow_up' : 'keyboard_arrow_down'}
-            </span>
+            {showDetails ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             detalhes
           </span>
         </div>

@@ -1,28 +1,28 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { usePlayerProfile, useBattleLog, useBattleStats, useFavorites } from '../hooks'
+import { AlertCircle, Crown, Share2, Shield, Star, Trophy } from 'lucide-react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useBattleLog, useBattleStats, useCards, useFavorites, usePlayerProfile } from '../hooks'
+import { AnalysisTab } from '../components/profile/AnalysisTab'
+import { BattlesTab } from '../components/profile/BattlesTab'
+import { OverviewTab } from '../components/profile/OverviewTab'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { ErrorBoundary } from '../components/ErrorBoundary'
-import { BattleItem } from '../components/BattleItem'
 import { formatTag } from '../utils/formatters'
 
-const toLocaleNumber = (value: number | undefined) => (value ?? 0).toLocaleString('pt-BR')
-
-const formatPercentage = (value: number | undefined) => {
-  const numeric = value ?? 0
-  const normalized = numeric <= 1 ? numeric * 100 : numeric
-  return `${normalized.toFixed(1)}%`
-}
+type ProfileTab = 'overview' | 'analysis' | 'battles'
 
 export function PlayerProfile() {
   const { tag } = useParams<{ tag: string }>()
-  const [showAllBattles, setShowAllBattles] = useState(false)
+  const navigate = useNavigate()
+  const [activeTab, setActiveTab] = useState<ProfileTab>('overview')
+  const [shareFeedback, setShareFeedback] = useState('')
   const normalizedTag = formatTag(tag || '')
 
   const { data: player, loading: playerLoading, error: playerError } = usePlayerProfile(normalizedTag)
   const { data: battles, loading: battlesLoading, error: battlesError } = useBattleLog(normalizedTag)
   const { data: stats, loading: statsLoading, error: statsError } = useBattleStats(normalizedTag)
+  const { cards: allCards } = useCards()
   const {
     isFavorite,
     toggleFavorite,
@@ -33,370 +33,184 @@ export function PlayerProfile() {
   } = useFavorites()
 
   if (!normalizedTag) {
-    return <ErrorMessage message="Tag de jogador invalida." />
+    return <ErrorMessage message="Tag de jogador inválida." />
   }
 
   if (playerLoading) return <LoadingSpinner message="Carregando perfil do jogador..." />
   if (playerError) return <ErrorMessage message={playerError} />
-  if (!player) return <p className="py-10 text-center text-sm text-rd-muted">Jogador nao encontrado.</p>
+  if (!player) {
+    return (
+      <section className="flex min-h-[70vh] items-center justify-center px-4 py-10">
+        <div className="w-full max-w-md rounded-2xl border border-[#243B53] bg-[#1A2B3C] p-8 text-center">
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#243B53]">
+            <AlertCircle className="h-8 w-8 text-[#F0C040]" />
+          </div>
+          <h1 className="mb-2 text-2xl font-bold text-white">Jogador não encontrado</h1>
+          <p className="mb-6 text-sm text-[#B0BEC5]">Confira a tag e tente novamente.</p>
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="inline-flex items-center justify-center rounded-xl bg-[#F0C040] px-4 py-2 text-sm font-semibold text-[#0D1B2A] transition-colors hover:bg-[#C9A033]"
+          >
+            Voltar para a Home
+          </button>
+        </div>
+      </section>
+    )
+  }
 
   const handleToggleFavorite = async () => {
     await toggleFavorite(player.tag, player.name)
   }
 
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      setShareFeedback('Link copiado!')
+      window.setTimeout(() => setShareFeedback(''), 1800)
+    } catch {
+      setShareFeedback('Não foi possível copiar')
+      window.setTimeout(() => setShareFeedback(''), 1800)
+    }
+  }
+
   const canAddFavorite = favorites.length < 15 || isFavorite(player.tag)
   const isFav = isFavorite(player.tag)
-  const visibleBattles = battles?.slice(0, showAllBattles ? battles.length : 5) || []
-
-  const profileStats = [
-    { label: 'Trofeus', value: player.trophies },
-    { label: 'Melhor marca', value: player.bestTrophies },
-    { label: 'Vitorias', value: player.wins },
-    { label: 'Derrotas', value: player.losses },
-    { label: 'Nivel', value: player.expLevel },
-    { label: 'Batalhas', value: player.battleCount },
-    { label: '3 coroas', value: player.threeCrownWins },
-    { label: 'Star points', value: player.starPoints },
-  ]
 
   return (
     <ErrorBoundary>
-      <section className="royale-page space-y-6">
+      <section className="min-h-screen py-8 md:py-12">
+        <div className="mx-auto max-w-5xl space-y-6 px-4">
         {actionError && <ErrorMessage message={actionError} onClose={clearActionError} />}
 
-        <header className="royale-card p-6 sm:p-8">
-          <div className="flex flex-wrap items-start justify-between gap-5">
-            <div>
-              <p className="text-xs uppercase tracking-[0.26em] text-rd-primary-deep">Perfil</p>
-              <h1 className="royale-title mt-2 text-4xl">{player.name}</h1>
-              <p className="mt-2 font-mono text-sm text-rd-primary">#{formatTag(player.tag)}</p>
-              <p className="mt-3 text-sm text-rd-muted">
-                {player.clan ? `${player.clan.name} (${player.clan.tag})` : 'Sem cla atualmente'}
-              </p>
+          <header className="rounded-2xl border border-[#243B53] bg-[#1A2B3C] p-5 sm:p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#243B53] bg-[#243B53]/55 sm:h-20 sm:w-20">
+                {player.currentFavouriteCard?.iconUrls?.medium ? (
+                  <img
+                    src={player.currentFavouriteCard.iconUrls.medium}
+                    alt={player.currentFavouriteCard.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <Shield className="h-8 w-8 text-[#B0BEC5]" />
+                )}
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <h1 className="truncate text-2xl font-bold text-white sm:text-3xl">{player.name}</h1>
+                <p className="font-mono text-sm text-[#B0BEC5]">#{formatTag(player.tag)}</p>
+
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F0C040]/20 px-3 py-1 text-sm font-medium text-[#F0C040]">
+                    <Trophy className="h-4 w-4" />
+                    {player.trophies.toLocaleString('pt-BR')}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#7B2FBE]/20 px-3 py-1 text-sm font-medium text-[#C993F8]">
+                    <Crown className="h-4 w-4" />
+                    Nível {player.expLevel}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#3B82F6]/20 px-3 py-1 text-sm font-medium text-[#93C5FD]">
+                    {player.arena?.name || 'Arena desconhecida'}
+                  </span>
+                </div>
+
+                {player.clan && (
+                  <p className="mt-3 text-sm text-[#B0BEC5]">
+                    {player.clan.name} ({player.clan.tag})
+                  </p>
+                )}
+              </div>
+
+              <div className="flex shrink-0 gap-2 sm:flex-col">
+                <button
+                  type="button"
+                  onClick={handleToggleFavorite}
+                  disabled={actionLoading || (!canAddFavorite && !isFav)}
+                  title={
+                    !canAddFavorite && !isFav
+                      ? 'Limite de 15 favoritos atingido'
+                      : isFav
+                        ? 'Remover dos favoritos'
+                        : 'Adicionar aos favoritos'
+                  }
+                  className={`inline-flex min-w-36 items-center justify-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition-colors ${
+                    isFav
+                      ? 'border-[#F0C040]/55 bg-[#F0C040]/20 text-[#F0C040] hover:bg-[#F0C040]/30'
+                      : 'border-[#243B53] bg-transparent text-[#B0BEC5] hover:bg-[#243B53] hover:text-white'
+                  } disabled:cursor-not-allowed disabled:opacity-50`}
+                >
+                  <Star className={`h-4 w-4 ${isFav ? 'fill-current' : ''}`} />
+                  {actionLoading ? 'Aguarde...' : isFav ? 'Salvo' : 'Salvar'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  className="inline-flex min-w-36 items-center justify-center gap-2 rounded-xl border border-[#243B53] bg-transparent px-4 py-2 text-sm font-semibold text-[#B0BEC5] transition-colors hover:bg-[#243B53] hover:text-white"
+                >
+                  <Share2 className="h-4 w-4" />
+                  Compartilhar
+                </button>
+              </div>
             </div>
 
-            <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
-              <button
-                onClick={handleToggleFavorite}
-                disabled={actionLoading || (!canAddFavorite && !isFav)}
-                title={
-                  !canAddFavorite && !isFav
-                    ? 'Limite de 15 favoritos atingido'
-                    : isFav
-                      ? 'Remover dos favoritos'
-                      : 'Adicionar aos favoritos'
-                }
-                className={`inline-flex w-full min-w-48 items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors sm:w-auto ${
-                  isFav
-                    ? 'bg-[rgba(240,192,64,0.2)] text-rd-primary-soft border border-[rgba(240,192,64,0.42)] hover:bg-[rgba(240,192,64,0.28)]'
-                    : 'gold-button'
-                } disabled:cursor-not-allowed disabled:opacity-50`}
-              >
-                <span className="material-symbols-rounded text-lg">{actionLoading ? 'hourglass_top' : isFav ? 'star' : 'star_outline'}</span>
-                {isFav ? 'Favoritado' : 'Favoritar'}
-              </button>
-              {!canAddFavorite && !isFav && (
-                <p className="text-xs text-[#ff8f98]">Limite de 15 favoritos atingido.</p>
-              )}
-            </div>
-          </div>
-        </header>
+            {shareFeedback && <p className="mt-2 text-sm text-[#B0BEC5]">{shareFeedback}</p>}
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {profileStats.map((stat) => (
-            <div key={stat.label} className="royale-card p-4 text-center">
-              <p className="text-xs uppercase tracking-[0.2em] text-rd-muted">{stat.label}</p>
-              <p className="royale-title mt-2 text-2xl">{toLocaleNumber(stat.value)}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div className="royale-card p-5">
-            <h2 className="royale-title text-2xl">Arena Atual</h2>
-            <p className="mt-2 text-sm text-rd-main">{player.arena?.name || 'Desconhecida'}</p>
-            {player.legacyTrophyRoadHighScore && (
-              <p className="mt-3 text-xs text-rd-muted">
-                Recorde antigo: {toLocaleNumber(player.legacyTrophyRoadHighScore)} trofeus
-              </p>
+            {!canAddFavorite && !isFav && (
+              <p className="mt-2 text-sm text-rose-300">Limite de 15 favoritos atingido.</p>
             )}
-          </div>
+          </header>
 
-          {player.currentFavouriteCard && (
-            <div className="royale-card p-5">
-              <h2 className="royale-title text-2xl">Carta Favorita</h2>
-              <div className="mt-3 flex items-center gap-3">
-                <img
-                  src={player.currentFavouriteCard.iconUrls?.medium} 
-                  alt={player.currentFavouriteCard.name}
-                  className="h-16 w-16 rounded"
-                />
-                <div>
-                  <p className="text-sm font-semibold text-rd-main">{player.currentFavouriteCard.name}</p>
-                  <p className="text-xs uppercase tracking-[0.18em] text-rd-muted">{player.currentFavouriteCard.rarity}</p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {(player.currentPathOfLegendSeasonResult || player.bestPathOfLegendSeasonResult) && (
-          <div className="royale-card p-5">
-            <h2 className="royale-title text-2xl">Path of Legend</h2>
-            <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-              {player.currentPathOfLegendSeasonResult && (
-                <div className="rounded-xl border border-[rgba(240,192,64,0.15)] bg-[rgba(20,31,67,0.65)] p-4 text-center">
-                  <h3 className="text-xs uppercase tracking-[0.2em] text-rd-muted">Temporada atual</h3>
-                  <p className="royale-title mt-2 text-xl text-rd-primary">
-                    Liga {player.currentPathOfLegendSeasonResult.leagueNumber ?? 0}
-                  </p>
-                  <p className="text-sm text-rd-main">
-                    {toLocaleNumber(player.currentPathOfLegendSeasonResult.trophies)} trofeus
-                  </p>
-                  {player.currentPathOfLegendSeasonResult.rank && (
-                    <p className="mt-1 text-xs text-rd-muted">Rank: #{player.currentPathOfLegendSeasonResult.rank}</p>
-                  )}
-                </div>
-              )}
-
-              {player.lastPathOfLegendSeasonResult && (
-                <div className="rounded-xl border border-[rgba(240,192,64,0.15)] bg-[rgba(17,25,53,0.55)] p-4 text-center">
-                  <h3 className="text-xs uppercase tracking-[0.2em] text-rd-muted">Ultima temporada</h3>
-                  <p className="royale-title mt-2 text-xl">
-                    Liga {player.lastPathOfLegendSeasonResult.leagueNumber ?? 0}
-                  </p>
-                  <p className="text-sm text-rd-main">
-                    {toLocaleNumber(player.lastPathOfLegendSeasonResult.trophies)} trofeus
-                  </p>
-                </div>
-              )}
-
-              {player.bestPathOfLegendSeasonResult && (
-                <div className="rounded-xl border border-[rgba(240,192,64,0.28)] bg-[rgba(36,25,7,0.55)] p-4 text-center">
-                  <h3 className="text-xs uppercase tracking-[0.2em] text-rd-muted">Melhor temporada</h3>
-                  <p className="royale-title mt-2 text-xl text-rd-primary-soft">
-                    Liga {player.bestPathOfLegendSeasonResult.leagueNumber ?? 0}
-                  </p>
-                  <p className="text-sm text-rd-main">
-                    {toLocaleNumber(player.bestPathOfLegendSeasonResult.trophies)} trofeus
-                  </p>
-                  {player.bestPathOfLegendSeasonResult.rank && (
-                    <p className="mt-1 text-xs text-rd-muted">Rank: #{player.bestPathOfLegendSeasonResult.rank}</p>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div className="royale-card p-5">
-            <h2 className="royale-title text-2xl">Doacoes</h2>
-            <div className="mt-3 space-y-2 text-sm">
-              <div className="flex items-center justify-between text-rd-main">
-                <span>Doacoes feitas</span>
-                <strong>{toLocaleNumber(player.donations)}</strong>
-              </div>
-              <div className="flex items-center justify-between text-rd-main">
-                <span>Doacoes recebidas</span>
-                <strong>{toLocaleNumber(player.donationsReceived)}</strong>
-              </div>
-              <div className="flex items-center justify-between border-t border-[rgba(240,192,64,0.16)] pt-2 text-rd-main">
-                <span>Total historico</span>
-                <strong>{toLocaleNumber(player.totalDonations)}</strong>
-              </div>
-            </div>
-          </div>
-
-          <div className="royale-card p-5">
-            <h2 className="royale-title text-2xl">Desafios e Torneios</h2>
-            <div className="mt-3 space-y-2 text-sm">
-              <div className="flex items-center justify-between text-rd-main">
-                <span>Cartas em desafios</span>
-                <strong>{toLocaleNumber(player.challengeCardsWon)}</strong>
-              </div>
-              <div className="flex items-center justify-between text-rd-main">
-                <span>Max de vitorias seguidas</span>
-                <strong>{toLocaleNumber(player.challengeMaxWins)}</strong>
-              </div>
-              <div className="flex items-center justify-between text-rd-main">
-                <span>Cartas em torneios</span>
-                <strong>{toLocaleNumber(player.tournamentCardsWon)}</strong>
-              </div>
-              <div className="flex items-center justify-between text-rd-main">
-                <span>Batalhas em torneios</span>
-                <strong>{toLocaleNumber(player.tournamentBattleCount)}</strong>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {player.warDayWins > 0 && (
-          <div className="royale-card p-5">
-            <h2 className="royale-title text-2xl">Guerra de Clas</h2>
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-rd-muted">Vitorias em war days</p>
-                <p className="royale-title mt-1 text-2xl">{toLocaleNumber(player.warDayWins)}</p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-rd-muted">Cartas coletadas</p>
-                <p className="royale-title mt-1 text-2xl">{toLocaleNumber(player.clanCardsCollected)}</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {player.clan && (
-          <div className="royale-card p-5">
-            <h2 className="royale-title text-2xl">Cla</h2>
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="text-xl font-semibold text-rd-main">{player.clan.name}</p>
-                <p className="font-mono text-sm text-rd-muted">{player.clan.tag}</p>
-              </div>
-              {player.clan.badgeId && (
-                <div className="text-xs text-rd-muted">Badge ID: {player.clan.badgeId}</div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {player.currentDeck && player.currentDeck.length > 0 && (
-          <div className="royale-card p-5">
-            <h2 className="royale-title text-2xl">Deck Atual</h2>
-            <div className="mt-4 grid grid-cols-4 gap-3 md:grid-cols-8">
-              {player.currentDeck.map((card) => (
-                <div key={card.id} className="text-center">
-                  <img src={card.iconUrls?.medium} alt={card.name} className="w-full rounded-lg" />
-                  <p className="mt-1 text-xs text-rd-muted">Nv. {card.level}</p>
-                </div>
+          <div className="rounded-xl border border-[#243B53] bg-[#1A2B3C] p-1">
+            <div className="grid h-11 grid-cols-3 gap-1">
+              {[
+                { value: 'overview', label: 'Visão Geral' },
+                { value: 'analysis', label: 'Análise' },
+                { value: 'battles', label: 'Batalhas' },
+              ].map((tab) => (
+                <button
+                  key={tab.value}
+                  type="button"
+                  onClick={() => setActiveTab(tab.value as ProfileTab)}
+                  className={[
+                    'rounded-lg px-3 text-sm font-medium transition-colors',
+                    activeTab === tab.value
+                      ? 'bg-[#F0C040] text-[#0D1B2A]'
+                      : 'text-[#B0BEC5] hover:bg-[#243B53] hover:text-white',
+                  ].join(' ')}
+                >
+                  {tab.label}
+                </button>
               ))}
             </div>
           </div>
-        )}
-
-        <ErrorBoundary>
-          {statsLoading ? (
-            <LoadingSpinner message="Carregando estatísticas..." />
-          ) : statsError ? (
-            <div className="royale-card p-5">
-              <h2 className="royale-title text-2xl">Estatisticas de Batalhas</h2>
-              <p className="py-4 text-center text-sm text-rd-muted">{statsError}</p>
-            </div>
-          ) : stats ? (
-            <div className="royale-card p-5">
-              <h2 className="royale-title text-2xl">Estatisticas de Batalhas</h2>
-              <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
-                <div className="rounded-xl border border-[rgba(240,192,64,0.14)] bg-[rgba(17,25,53,0.58)] p-3 text-center">
-                  <p className="text-xs uppercase tracking-[0.18em] text-rd-muted">Total</p>
-                  <p className="royale-title mt-1 text-2xl">{toLocaleNumber(stats.totalBattles)}</p>
-                </div>
-                <div className="rounded-xl border border-[rgba(57,176,122,0.3)] bg-[rgba(57,176,122,0.14)] p-3 text-center">
-                  <p className="text-xs uppercase tracking-[0.18em] text-emerald-200">Vitorias</p>
-                  <p className="royale-title mt-1 text-2xl text-emerald-100">{toLocaleNumber(stats.wins)}</p>
-                </div>
-                <div className="rounded-xl border border-[rgba(237,89,102,0.36)] bg-[rgba(237,89,102,0.14)] p-3 text-center">
-                  <p className="text-xs uppercase tracking-[0.18em] text-rose-200">Derrotas</p>
-                  <p className="royale-title mt-1 text-2xl text-rose-100">{toLocaleNumber(stats.losses)}</p>
-                </div>
-                <div className="rounded-xl border border-[rgba(240,192,64,0.32)] bg-[rgba(240,192,64,0.14)] p-3 text-center">
-                  <p className="text-xs uppercase tracking-[0.18em] text-rd-primary-soft">Empates</p>
-                  <p className="royale-title mt-1 text-2xl text-rd-primary-soft">{toLocaleNumber(stats.draws)}</p>
-                </div>
-              </div>
-
-              <div className="mt-4 space-y-3 text-sm">
-                <div className="flex items-center justify-between border-b border-[rgba(240,192,64,0.14)] py-2">
-                  <span className="text-rd-muted">Taxa de vitoria</span>
-                  <strong className="text-rd-main">{formatPercentage(stats.winRate)}</strong>
-                </div>
-                {stats.avgTrophyChange !== null && (
-                  <div className="flex items-center justify-between border-b border-[rgba(240,192,64,0.14)] py-2">
-                    <span className="text-rd-muted">Media de trofeus por partida</span>
-                    <strong className={`${stats.avgTrophyChange > 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
-                      {stats.avgTrophyChange > 0 ? '+' : ''}{stats.avgTrophyChange}
-                    </strong>
-                  </div>
-                )}
-                <div className="flex items-center justify-between border-b border-[rgba(240,192,64,0.14)] py-2">
-                  <span className="text-rd-muted">Media de elixir desperdicado</span>
-                  <strong className="text-rd-main">{(stats.avgElixirLeaked ?? 0).toFixed(1)}</strong>
-                </div>
-                <div className="flex items-center justify-between border-b border-[rgba(240,192,64,0.14)] py-2">
-                  <span className="text-rd-muted">Batalhas PvP</span>
-                  <strong className="text-rd-main">{toLocaleNumber(stats.pvpBattles)}</strong>
-                </div>
-                <div className="flex items-center justify-between border-b border-[rgba(240,192,64,0.14)] py-2">
-                  <span className="text-rd-muted">Batalhas Path of Legend</span>
-                  <strong className="text-rd-main">{toLocaleNumber(stats.pathOfLegendBattles)}</strong>
-                </div>
-              </div>
-
-              {stats.mostLostAgainstCards && stats.mostLostAgainstCards.length > 0 && (
-                <div>
-                  <h3 className="text-sm uppercase tracking-[0.2em] text-rd-muted">Cartas problematicas</h3>
-                  <div className="mt-2 space-y-2">
-                    {stats.mostLostAgainstCards.slice(0, 10).map((card, index) => (
-                      <div
-                        key={`${card.name}-${index}`}
-                        className="flex items-center justify-between rounded-lg border border-[rgba(240,192,64,0.14)] bg-[rgba(17,25,53,0.58)] px-3 py-2 text-sm"
-                      >
-                        <span className="text-rd-main">{card.name}</span>
-                        <span className="text-rd-muted">
-                          {card.count} derrotas ({formatPercentage(card.percentage)})
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : null}
-        </ErrorBoundary>
-
-        <ErrorBoundary>
-          {battlesLoading ? (
-            <LoadingSpinner message="Carregando batalhas..." />
-          ) : battlesError ? (
-            <div className="royale-card p-5">
-              <h2 className="royale-title text-2xl">Historico de Batalhas</h2>
-              <p className="py-4 text-center text-sm text-rd-muted">{battlesError}</p>
-            </div>
-          ) : battles && battles.length > 0 ? (
-            <div className="royale-card p-5">
-              <h2 className="royale-title text-2xl">
-                Histórico de Batalhas ({battles.length})
-              </h2>
-              <div className="mt-4 space-y-3">
-                {visibleBattles.map((battle, index) => (
-                  <BattleItem
-                    key={`${battle.battleTime}-${index}`}
-                    battle={battle}
-                    playerTag={player.tag}
-                  />
-                ))}
-              </div>
-
-              {battles.length > 5 && (
-                <button
-                  onClick={() => setShowAllBattles(!showAllBattles)}
-                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[rgba(240,192,64,0.2)] bg-[rgba(17,25,53,0.62)] px-4 py-2 text-sm text-rd-main transition-colors hover:bg-[rgba(25,35,74,0.78)]"
-                >
-                  <span className="material-symbols-rounded text-base">
-                    {showAllBattles ? 'expand_less' : 'expand_more'}
-                  </span>
-                  {showAllBattles ? 'Mostrar menos' : `Mostrar todas (${battles.length})`}
-                </button>
-              )}
-            </div>
-          ) : (
-            <div className="royale-card p-5">
-              <h2 className="royale-title text-2xl">Historico de Batalhas</h2>
-              <p className="py-4 text-center text-sm text-rd-muted">Nenhuma batalha encontrada.</p>
-            </div>
+          {activeTab === 'overview' && (
+            <ErrorBoundary>
+              <OverviewTab player={player} />
+            </ErrorBoundary>
           )}
-        </ErrorBoundary>
+
+          {activeTab === 'analysis' && (
+            <ErrorBoundary>
+              <AnalysisTab
+                stats={stats}
+                loading={statsLoading}
+                error={statsError}
+                battles={battles}
+                battlesLoading={battlesLoading}
+                playerTag={player.tag}
+                allCards={allCards}
+              />
+            </ErrorBoundary>
+          )}
+
+          {activeTab === 'battles' && (
+            <ErrorBoundary>
+              <BattlesTab battles={battles} loading={battlesLoading} error={battlesError} playerTag={player.tag} />
+            </ErrorBoundary>
+          )}
+        </div>
       </section>
     </ErrorBoundary>
   )

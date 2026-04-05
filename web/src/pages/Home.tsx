@@ -99,7 +99,7 @@ export function Home() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden pb-16 pt-8 md:py-24">
+      <section className="relative overflow-x-hidden overflow-y-visible pb-24 pt-14 md:py-32">
         <div className="mx-auto max-w-7xl px-4">
           <h2 className="mb-8 text-center text-2xl font-bold text-white md:mb-12 md:text-3xl">
             Explore as <span className="text-[#F0C040]">Cartas</span>
@@ -124,7 +124,7 @@ export function Home() {
 
           {!loading && showCards && (
             <>
-              <div className="-mx-4 overflow-x-auto overscroll-x-contain px-4 pb-4 pt-3 scrollbar-hide touch-pan-x md:hidden">
+              <div className="-mx-4 overflow-x-auto overflow-y-visible overscroll-x-contain px-4 pb-8 pt-6 scrollbar-hide touch-pan-x md:hidden">
                 <div className="flex w-max snap-x snap-mandatory gap-4 pl-2">
                   {mobileDecorativeCards.map((card, index) => (
                     <HomeCardDisplay
@@ -138,7 +138,7 @@ export function Home() {
                 </div>
               </div>
 
-              <div className="hidden justify-items-center gap-6 md:grid md:grid-cols-4 lg:grid-cols-6">
+              <div className="hidden justify-items-center gap-6 pt-5 md:grid md:grid-cols-4 lg:grid-cols-6">
                 {decorativeCards.map((card, index) => (
                   <HomeCardDisplay
                     key={card.id}

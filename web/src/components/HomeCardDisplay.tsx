@@ -1,4 +1,5 @@
 import type { Card } from '../types'
+import { formatRarityLabel } from '../utils/formatters'
 
 interface HomeCardDisplayProps {
   card: Card
@@ -8,8 +9,8 @@ interface HomeCardDisplayProps {
 }
 
 const sizeClasses = {
-  md: 'w-24 h-32',
-  lg: 'w-32 h-40',
+  md: 'h-40 w-24',
+  lg: 'h-48 w-32',
 }
 
 const textClasses = {
@@ -37,12 +38,12 @@ export function HomeCardDisplay({
         <span className="text-xs font-bold text-white">{card.elixirCost}</span>
       </div>
 
-      <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-lg bg-linear-to-b from-[#243B53] to-[#1A2B3C]">
+      <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-lg bg-linear-to-b from-[#243B53] to-[#1A2B3C] p-1">
         <img
           src={card.iconUrls.medium}
           alt={card.name}
           loading="lazy"
-          className="h-full w-full object-cover"
+          className="h-full w-full object-contain"
         />
       </div>
 
@@ -50,8 +51,8 @@ export function HomeCardDisplay({
         {card.name}
       </p>
 
-      <p className="rounded-full bg-[#0D1B2A] px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] text-[#B0BEC5]">
-        {card.rarity}
+      <p className="rounded-full bg-[#0D1B2A] px-2 py-0.5 text-[10px] tracking-[0.08em] text-[#B0BEC5]">
+        {formatRarityLabel(card.rarity)}
       </p>
 
       <div className="pointer-events-none absolute inset-0 rounded-xl bg-[#F0C040]/0 transition-colors group-hover:bg-[#F0C040]/5" />

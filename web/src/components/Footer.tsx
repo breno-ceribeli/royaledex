@@ -3,8 +3,8 @@ import { Crown } from 'lucide-react'
 import { FaGithub, FaLinkedin } from 'react-icons/fa'
 
 const socialLinks = [
-  { href: 'https://github.com', label: 'GitHub', icon: FaGithub },
-  { href: 'https://linkedin.com', label: 'LinkedIn', icon: FaLinkedin },
+  { href: 'https://github.com/breno-ceribeli', label: 'GitHub', icon: FaGithub },
+  { href: 'https://www.linkedin.com/in/breno-fernandes-ceribeli/', label: 'LinkedIn', icon: FaLinkedin },
 ]
 
 export function Footer() {
