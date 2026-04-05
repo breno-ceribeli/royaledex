@@ -13,15 +13,15 @@ export function Favorites() {
   return (
     <section className="royale-page space-y-7">
       <header className="royale-card p-6 sm:p-8">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.26em] text-rd-primary-deep">Favorites</p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="max-w-2xl">
+            <p className="text-xs uppercase tracking-[0.26em] text-rd-primary-deep">Favoritos</p>
             <h1 className="royale-title mt-2 text-4xl">Meus Jogadores Favoritos</h1>
             <p className="mt-2 text-sm text-rd-muted">
-              Painel de acompanhamento rapido conectado ao backend e ao Firestore.
+              Acompanhe os jogadores que voce mais consulta e abra o perfil de cada um rapidamente.
             </p>
           </div>
-          <div className="rounded-xl border border-[rgba(240,192,64,0.18)] bg-rd-surface-low px-4 py-3 text-right">
+          <div className="rounded-xl border border-[rgba(240,192,64,0.18)] bg-rd-surface-low px-4 py-3 text-left sm:text-right">
             <p className="text-xs uppercase tracking-[0.2em] text-rd-muted">Slots usados</p>
             <p className="royale-title text-3xl">{favorites.length} / 15</p>
           </div>

@@ -10,7 +10,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import type { Battle, BattleLog, BattleLogStats, Card } from '../../../types'
+import type { BattleLog, BattleLogStats, Card } from '../../../types'
 
 interface AnalysisTabProps {
   stats: BattleLogStats | null
@@ -18,7 +18,6 @@ interface AnalysisTabProps {
   error: string
   battles: BattleLog
   battlesLoading: boolean
-  playerTag: string
   allCards: Card[]
 }
 
@@ -37,7 +36,7 @@ const normalizeText = (value: string) =>
     .trim()
     .toLowerCase()
 
-const getCompetitiveType = (battle: Battle) => {
+const getCompetitiveType = (battle: BattleLog[number]) => {
   const normalizedType = normalizeText(battle.type || '')
 
   if (normalizedType === 'pvp') {
@@ -51,9 +50,8 @@ const getCompetitiveType = (battle: Battle) => {
   return null
 }
 
-const getBattleResult = (battle: Battle, playerTag: string) => {
-  const normalizedTag = normalizeText(playerTag.replace(/^#/, ''))
-  const playerData = battle.team?.find((entry) => normalizeText(entry.tag.replace(/^#/, '')) === normalizedTag) || battle.team?.[0]
+const getBattleResult = (battle: BattleLog[number]) => {
+  const playerData = battle.team?.[0]
   const opponentData = battle.opponent?.[0]
 
   if (!playerData || !opponentData) {
@@ -77,7 +75,6 @@ export function AnalysisTab({
   error,
   battles,
   battlesLoading,
-  playerTag,
   allCards,
 }: AnalysisTabProps) {
   const competitiveBattles = useMemo(() => {
@@ -86,19 +83,23 @@ export function AnalysisTab({
 
   const recentBattles = useMemo(() => competitiveBattles.slice(0, MAX_BATTLES), [competitiveBattles])
 
+  const chartBattles = useMemo(() => {
+    return [...recentBattles].reverse()
+  }, [recentBattles])
+
   const performanceData = useMemo(() => {
-    return recentBattles.map((battle, index) => {
-      const battlesUntilNow = recentBattles.slice(0, index + 1)
-      const wins = battlesUntilNow.filter((entry) => getBattleResult(entry, playerTag) === 'win').length
+    return chartBattles.map((battle, index) => {
+      const battlesUntilNow = chartBattles.slice(0, index + 1)
+      const wins = battlesUntilNow.filter((entry) => getBattleResult(entry) === 'win').length
       const rate = (wins / (index + 1)) * 100
 
       return {
         battle: index + 1,
         winRate: Number(rate.toFixed(1)),
-        isWin: getBattleResult(battle, playerTag) === 'win' ? 1 : 0,
+        isWin: getBattleResult(battle) === 'win' ? 1 : 0,
       }
     })
-  }, [playerTag, recentBattles])
+  }, [chartBattles])
 
   const battleTypeStats = useMemo(() => {
     const grouped = new Map<string, { type: string; wins: number; losses: number }>()
@@ -113,7 +114,7 @@ export function AnalysisTab({
         grouped.set(type, { type, wins: 0, losses: 0 })
       }
 
-      const result = getBattleResult(battle, playerTag)
+      const result = getBattleResult(battle)
       const current = grouped.get(type)
       if (!current) continue
 
@@ -125,7 +126,7 @@ export function AnalysisTab({
     }
 
     return Array.from(grouped.values())
-  }, [playerTag, recentBattles])
+  }, [recentBattles])
 
   const cardMap = useMemo(() => {
     const map = new Map<string, Card>()

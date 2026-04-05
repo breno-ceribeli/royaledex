@@ -199,7 +199,6 @@ export function PlayerProfile() {
                 error={statsError}
                 battles={battles}
                 battlesLoading={battlesLoading}
-                playerTag={player.tag}
                 allCards={allCards}
               />
             </ErrorBoundary>

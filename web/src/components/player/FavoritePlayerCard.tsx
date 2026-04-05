@@ -1,4 +1,5 @@
 import type { MouseEvent } from 'react'
+import { Loader2, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useFavorites } from '../../hooks'
 import type { FavoritePlayer } from '../../types'
@@ -46,11 +47,9 @@ export function FavoritePlayerCard({ player }: FavoritePlayerCardProps) {
         onClick={handleRemove}
         disabled={actionLoading}
         title="Remover dos favoritos"
-        className="relative z-10 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[rgba(255,95,102,0.45)] bg-[rgba(90,25,29,0.85)] text-[#ffcdd3] transition-colors hover:border-[rgba(255,95,102,0.7)] hover:bg-[rgba(128,33,41,0.9)] disabled:cursor-not-allowed disabled:opacity-50"
+        className="relative z-10 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[rgba(239,68,68,0.4)] bg-[rgba(127,29,29,0.35)] text-[#fecaca] transition-colors hover:border-[rgba(239,68,68,0.65)] hover:bg-[rgba(127,29,29,0.5)] disabled:cursor-not-allowed disabled:opacity-50"
       >
-        <span className="material-symbols-rounded text-[18px]">
-          {actionLoading ? 'hourglass_top' : 'delete'}
-        </span>
+        {actionLoading ? <Loader2 className="h-4.5 w-4.5 animate-spin" /> : <Trash2 className="h-4.5 w-4.5" />}
       </button>
     </article>
   )

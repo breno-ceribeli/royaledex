@@ -1,6 +1,8 @@
 import { db } from '../config/firebase'
 import { FavoritePlayer, AddFavoritePlayerRequest } from '../types/favorites.types'
 
+const MAX_FAVORITES = 15
+
 /**
  * Busca todos os players favoritos de um usuário
  * Ordenados por data de adição (mais recentes primeiro)
@@ -60,13 +62,25 @@ export async function addFavoritePlayer(
 
     // Usa a tag como ID do documento (permite set com merge)
     const docId = normalizedTag.replace('#', '')
-
-    await db
+    const favoritesCollection = db
       .collection('favorites')
       .doc(userId)
       .collection('players')
-      .doc(docId)
-      .set(favorite)
+
+    // Se o jogador nao existir ainda e ja houver 15 favoritos, bloqueia
+    const existingFavoriteDoc = await favoritesCollection.doc(docId).get()
+    if (!existingFavoriteDoc.exists) {
+      const snapshot = await favoritesCollection.get()
+      if (snapshot.size >= MAX_FAVORITES) {
+        const limitError = {
+          status: 400,
+          message: `Maximum of ${MAX_FAVORITES} favorites reached`
+        }
+        throw limitError
+      }
+    }
+
+    await favoritesCollection.doc(docId).set(favorite)
 
     console.log(`✅ Player ${normalizedTag} added to favorites for user ${userId}`)
     return favorite

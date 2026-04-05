@@ -25,6 +25,15 @@ const navLinks: NavLinkItem[] = [
   { href: '/favorites', label: 'Favoritos', icon: Star },
 ]
 
+const sanitizeTagInput = (value: string) => {
+  const withoutSpaces = value.toUpperCase().replace(/\s+/g, '')
+  const onlyAllowedChars = withoutSpaces.replace(/[^A-Z0-9#]/g, '')
+  const hasHash = onlyAllowedChars.includes('#')
+  const alphanumeric = onlyAllowedChars.replace(/#/g, '')
+
+  return hasHash ? `#${alphanumeric}` : alphanumeric
+}
+
 const normalizeTag = (value: string) => value.trim().replace(/^#+/, '').toUpperCase()
 
 export function Navbar() {
@@ -79,7 +88,7 @@ export function Navbar() {
                 type="text"
                 placeholder="Buscar jogador por tag... (ex: #ABC123)"
                 value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
+                onChange={(event) => setSearchQuery(sanitizeTagInput(event.target.value))}
                 className="w-full rounded-xl border border-[#243B53] bg-[#1A2B3C] py-2 pl-10 pr-3 text-sm text-white outline-none transition-colors focus:border-[#F0C040]"
               />
             </label>
@@ -158,7 +167,7 @@ export function Navbar() {
                   autoFocus
                   placeholder="Buscar jogador por tag..."
                   value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
+                  onChange={(event) => setSearchQuery(sanitizeTagInput(event.target.value))}
                   className="w-full rounded-xl border border-[#243B53] bg-[#1A2B3C] py-2 pl-10 pr-3 text-sm text-white outline-none transition-colors focus:border-[#F0C040]"
                 />
               </label>

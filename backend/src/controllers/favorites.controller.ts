@@ -59,6 +59,13 @@ export const addFavoritePlayer = async (req: Request, res: Response): Promise<vo
     res.status(201).json(favorite)
   } catch (error) {
     console.error('Error in addFavoritePlayer:', error)
+
+    if (error && typeof error === 'object' && 'status' in error && 'message' in error) {
+      const typedError = error as { status: number; message: string }
+      res.status(typedError.status).json({ error: typedError.message })
+      return
+    }
+
     res.status(500).json({ error: 'Failed to add favorite player' })
   }
 }
