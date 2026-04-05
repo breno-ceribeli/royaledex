@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { Card } from '../types'
-import { formatRarityLabel } from '../utils/formatters'
+import type { Card } from '../../types'
+import { formatRarityLabel } from '../../utils/formatters'
 
 interface CardsDisplayCardProps {
   card: Card

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { BattleItem } from '../BattleItem'
-import type { BattleLog } from '../../types'
+import type { BattleLog } from '../../../types'
 
 interface BattlesTabProps {
   battles: BattleLog

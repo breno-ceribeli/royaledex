@@ -1,5 +1,5 @@
-import type { Card } from '../types'
-import { formatRarityLabel } from '../utils/formatters'
+import type { Card } from '../../types'
+import { formatRarityLabel } from '../../utils/formatters'
 
 interface HomeCardDisplayProps {
   card: Card

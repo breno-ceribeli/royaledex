@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChartBar, History, Star } from 'lucide-react'
 import { useCards } from '../hooks'
-import { HomeCardDisplay } from '../components/HomeCardDisplay'
+import { HomeCardDisplay } from '../components/cards/HomeCardDisplay'
 import type { Card } from '../types'
 
 const DESKTOP_ROTATIONS = [-5, 3, -2, 4, -3, 2, 5, -4, 3, -2, 4, -3]

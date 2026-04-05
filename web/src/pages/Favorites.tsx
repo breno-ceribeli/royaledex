@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
 import { useFavorites } from '../hooks'
-import { FavoritePlayerCard } from '../components/FavoritePlayerCard'
-import { LoadingSpinner } from '../components/LoadingSpinner'
-import { ErrorMessage } from '../components/ErrorMessage'
+import { FavoritePlayerCard } from '../components/player/FavoritePlayerCard'
+import { LoadingSpinner } from '../components/feedback/LoadingSpinner'
+import { ErrorMessage } from '../components/feedback/ErrorMessage'
 
 export function Favorites() {
   const { favorites, loading, error, actionError, clearActionError } = useFavorites()

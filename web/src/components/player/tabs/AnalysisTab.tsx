@@ -10,7 +10,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import type { Battle, BattleLog, BattleLogStats, Card } from '../../types'
+import type { Battle, BattleLog, BattleLogStats, Card } from '../../../types'
 
 interface AnalysisTabProps {
   stats: BattleLogStats | null

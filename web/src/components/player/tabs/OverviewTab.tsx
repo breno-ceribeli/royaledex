@@ -1,5 +1,5 @@
 import { Crown, Gift, Shield, Swords, Target, Trophy, Users } from 'lucide-react'
-import type { PlayerProfile } from '../../types'
+import type { PlayerProfile } from '../../../types'
 
 interface OverviewTabProps {
   player: PlayerProfile

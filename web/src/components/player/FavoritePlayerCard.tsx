@@ -1,8 +1,8 @@
 import type { MouseEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useFavorites } from '../hooks'
-import type { FavoritePlayer } from '../types'
-import { formatTag } from '../utils/formatters'
+import { useFavorites } from '../../hooks'
+import type { FavoritePlayer } from '../../types'
+import { formatTag } from '../../utils/formatters'
 
 interface FavoritePlayerCardProps {
   player: FavoritePlayer

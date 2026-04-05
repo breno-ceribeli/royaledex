@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
-import type { Battle, BattleCard } from '../types'
-import { formatTag } from '../utils/formatters'
+import type { Battle, BattleCard } from '../../types'
+import { formatTag } from '../../utils/formatters'
 
 interface BattleItemProps {
   battle: Battle

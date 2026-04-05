@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useCards } from '../hooks'
-import { CardsDisplayCard } from '../components/CardsDisplayCard'
-import { LoadingSpinner } from '../components/LoadingSpinner'
-import { ErrorMessage } from '../components/ErrorMessage'
+import { CardsDisplayCard } from '../components/cards/CardsDisplayCard'
+import { LoadingSpinner } from '../components/feedback/LoadingSpinner'
+import { ErrorMessage } from '../components/feedback/ErrorMessage'
 import { formatRarityLabel } from '../utils/formatters'
 import type { Card } from '../types'
 
