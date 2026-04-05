@@ -20,6 +20,9 @@ export interface AuthContextType {
   /** Faz login com conta Google */
   signInWithGoogle: () => Promise<void>
 
+  /** Envia email de redefinição de senha */
+  sendPasswordReset: (email: string) => Promise<void>
+
   /** Faz logout */
   logout: () => Promise<void>
 }

@@ -19,11 +19,21 @@ export function getFirebaseErrorMessage(error: unknown): string {
     'auth/wrong-password': 'Senha incorreta. Tente novamente.',
     'auth/invalid-credential': 'Email ou senha incorretos.',
     'auth/too-many-requests': 'Muitas tentativas de login. Tente novamente mais tarde.',
+    'auth/email-not-verified': 'Seu email ainda nao foi verificado. Verifique sua caixa de entrada e tente novamente.',
     
     // Erros de Cadastro
-    'auth/email-already-in-use': 'Email inválido. Verifique e tente novamente.',
+    'auth/email-already-in-use': 'Este email ja esta em uso. Tente fazer login ou recuperar a senha.',
     'auth/operation-not-allowed': 'Operação não permitida.',
     'auth/weak-password': 'Senha muito fraca. Use no mínimo 6 caracteres.',
+
+    // Erros de Senha / Conta
+    'auth/not-authenticated': 'Voce precisa estar autenticado para realizar essa acao.',
+    'auth/password-change-not-available': 'Troca de senha indisponivel para contas Google.',
+    'auth/password-reset-not-available': 'Esta conta foi criada com login social (Google) e nao possui senha para redefinir.',
+    'auth/requires-recent-login': 'Por seguranca, entre novamente antes de trocar sua senha.',
+    'auth/invalid-action-code': 'Este link de acao expirou ou ja foi utilizado.',
+    'auth/missing-email': 'Informe um email valido para continuar.',
+    'auth/user-mismatch': 'A credencial informada nao corresponde ao usuario atual.',
     
     // Erros do Google Sign In
     'auth/account-exists-with-different-credential': 

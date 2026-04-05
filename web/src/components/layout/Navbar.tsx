@@ -110,7 +110,7 @@ export function Navbar() {
             {user ? (
               <div className="flex items-center gap-3">
                 <div className="hidden max-w-44 truncate text-sm text-[#B0BEC5] lg:block">
-                  {user.displayName || user.email}
+                  {user.displayName ||user.email || 'Usuário'}
                 </div>
                 <button
                   onClick={handleLogout}

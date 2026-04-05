@@ -2,12 +2,15 @@ import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { User } from 'firebase/auth'
 import {
-  signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  fetchSignInMethodsForEmail,
+  sendEmailVerification,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
 } from 'firebase/auth'
 import { auth } from '../config/firebase'
 import { AuthContext } from './AuthContext'
@@ -52,17 +55,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * Login com email e senha
    */
   const signIn = async (email: string, password: string): Promise<void> => {
-    await signInWithEmailAndPassword(auth, email, password)
-    // Não precisamos atualizar o state manualmente
-    // O onAuthStateChanged já detecta a mudança
+    const credential = await signInWithEmailAndPassword(auth, email, password)
+
+    const isPasswordAccount = credential.user.providerData.some(
+      (provider) => provider.providerId === 'password'
+    )
+
+    if (isPasswordAccount && !credential.user.emailVerified) {
+      try {
+        await sendEmailVerification(credential.user)
+      } catch {
+        // Ignora falha de reenvio para não esconder o erro principal
+      }
+
+      await signOut(auth)
+      const error = new Error('Seu email ainda nao foi verificado. Enviamos um novo link de confirmacao para sua caixa de entrada.')
+      ;(error as { code?: string }).code = 'auth/email-not-verified'
+      throw error
+    }
+
+    // Não precisamos atualizar o state manualmente.
+    // O onAuthStateChanged já detecta a mudança.
   }
 
   /**
    * Cadastro com email e senha
    */
   const signUp = async (email: string, password: string): Promise<void> => {
-    await createUserWithEmailAndPassword(auth, email, password)
-    // Firebase automaticamente loga o usuário após criar conta
+    const credential = await createUserWithEmailAndPassword(auth, email, password)
+    await sendEmailVerification(credential.user)
+    await signOut(auth)
   }
 
   /**
@@ -71,6 +93,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = async (): Promise<void> => {
     const provider = new GoogleAuthProvider()
     await signInWithPopup(auth, provider)
+  }
+
+  /**
+   * Envia email de redefinição de senha
+   */
+  const sendPasswordReset = async (email: string): Promise<void> => {
+    const normalizedEmail = email.trim().toLowerCase()
+
+    if (!normalizedEmail) {
+      const error = new Error('Informe um email valido para continuar.')
+      ;(error as { code?: string }).code = 'auth/missing-email'
+      throw error
+    }
+
+    let signInMethods: string[] | null = null
+
+    try {
+      signInMethods = await fetchSignInMethodsForEmail(auth, normalizedEmail)
+    } catch {
+      // Em alguns projetos o Firebase pode restringir essa verificação.
+      // Nesses casos seguimos para o envio e deixamos o Firebase aplicar a política de segurança.
+      signInMethods = null
+    }
+
+    if (signInMethods && signInMethods.length > 0 && !signInMethods.includes('password')) {
+      const error = new Error('Este email usa login social e nao possui senha para redefinir.')
+      ;(error as { code?: string }).code = 'auth/password-reset-not-available'
+      throw error
+    }
+
+    await sendPasswordResetEmail(auth, normalizedEmail)
   }
 
   /**
@@ -87,6 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signIn,
     signUp,
     signInWithGoogle,
+    sendPasswordReset,
     logout
   }
 
