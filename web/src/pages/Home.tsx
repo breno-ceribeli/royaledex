@@ -71,7 +71,7 @@ export function Home() {
   const showCards = decorativeCards.length > 0
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-screen overflow-x-clip">
       <div className="pointer-events-none absolute left-1/2 top-32 h-200 w-200 -translate-x-1/2 rounded-full bg-[#F0C040]/5 blur-[120px]" />
       <div className="pointer-events-none absolute right-0 top-16 h-100 w-100 rounded-full bg-[#7B2FBE]/10 blur-[100px]" />
 
