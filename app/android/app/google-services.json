@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "881549341879",
+    "project_id": "royaledex-clash",
+    "storage_bucket": "royaledex-clash.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:881549341879:android:02c8d26d19276cb44c0932",
+        "android_client_info": {
+          "package_name": "com.royaledex.royaledex"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "881549341879-73rii8qdcnti31gs3flbeghgpvc5li6u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC280kqrJZxehTwb2XCfmBhvIY7Z2bhsDE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "881549341879-73rii8qdcnti31gs3flbeghgpvc5li6u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
