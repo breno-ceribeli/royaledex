@@ -5,6 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
+import '../models/api.dart';
+
 class ApiException implements Exception {
   ApiException({
     required this.message,
@@ -240,14 +242,17 @@ class ApiService {
 
     if (payload is Map<String, dynamic>) {
       final dynamic payloadCode = payload['code'];
-      final dynamic payloadMessage = payload['message'] ?? payload['error'];
+      final apiErrorResponse = ApiErrorResponse.fromJson(payload);
+      final apiError = ApiError.fromJson(payload);
 
       if (payloadCode is String && payloadCode.isNotEmpty) {
         code = payloadCode;
       }
 
-      if (payloadMessage is String && payloadMessage.isNotEmpty) {
-        message = payloadMessage;
+      if (apiErrorResponse.message.isNotEmpty) {
+        message = apiErrorResponse.message;
+      } else if (apiError.error.isNotEmpty) {
+        message = apiError.error;
       }
     }
 
