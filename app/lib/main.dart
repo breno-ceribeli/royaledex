@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 
+import 'config/theme.dart';
 import 'providers/auth_provider.dart';
 import 'firebase_options.dart';
 
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'RoyaleDex',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
+      theme: RoyaleDexTheme.darkTheme,
       home: const _AuthBootstrapScreen(),
     );
   }
