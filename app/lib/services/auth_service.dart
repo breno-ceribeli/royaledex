@@ -22,9 +22,7 @@ class AuthService {
 
   Stream<User?> authStateChanges() => _auth.authStateChanges();
 
-  User? get currentUser => _auth.currentUser;
-
-  Future<void> signIn(String email, String password) async {
+  Future<void> signInWithEmailAndPassword(String email, String password) async {
     final credential = await _auth.signInWithEmailAndPassword(
       email: email.trim(),
       password: password,
@@ -58,7 +56,11 @@ class AuthService {
     }
   }
 
-  Future<void> signUp(String email, String password) async {
+  Future<void> signUpWithEmailAndPassword(
+    String name,
+    String email,
+    String password,
+  ) async {
     final credential = await _auth.createUserWithEmailAndPassword(
       email: email.trim(),
       password: password,
@@ -72,8 +74,21 @@ class AuthService {
       );
     }
 
+    final normalizedName = name.trim();
+    if (normalizedName.isNotEmpty) {
+      await createdUser.updateDisplayName(normalizedName);
+    }
+
     await createdUser.sendEmailVerification();
     await _auth.signOut();
+  }
+
+  Future<String?> getCurrentUserToken({bool forceRefresh = false}) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      return null;
+    }
+    return user.getIdToken(forceRefresh);
   }
 
   Future<void> signInWithGoogle() async {
@@ -111,7 +126,7 @@ class AuthService {
     await _auth.sendPasswordResetEmail(email: normalizedEmail);
   }
 
-  Future<void> logout() async {
+  Future<void> signOut() async {
     if (!kIsWeb) {
       await _googleSignIn.signOut();
     }

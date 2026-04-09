@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 
 import '../models/api.dart';
 
+typedef AuthTokenProvider = Future<String?> Function();
+
 class ApiException implements Exception {
   ApiException({
     required this.message,
@@ -27,13 +29,19 @@ class ApiException implements Exception {
 }
 
 class ApiService {
-  ApiService({String? baseUrl, FirebaseAuth? auth, http.Client? client})
-    : _auth = auth ?? FirebaseAuth.instance,
-      _client = client ?? http.Client(),
-      _baseUrl = _normalizeBaseUrl(baseUrl ?? dotenv.env['API_URL']);
+  ApiService({
+    String? baseUrl,
+    FirebaseAuth? auth,
+    http.Client? client,
+    AuthTokenProvider? authTokenProvider,
+  }) : _auth = auth ?? FirebaseAuth.instance,
+       _client = client ?? http.Client(),
+       _authTokenProvider = authTokenProvider,
+       _baseUrl = _normalizeBaseUrl(baseUrl ?? dotenv.env['API_URL']);
 
   final FirebaseAuth _auth;
   final http.Client _client;
+  final AuthTokenProvider? _authTokenProvider;
   final String _baseUrl;
 
   static const Duration _defaultTimeout = Duration(seconds: 20);
@@ -213,14 +221,26 @@ class ApiService {
       return headers;
     }
 
-    final user = _auth.currentUser;
-    if (user == null) {
+    final token = await _resolveAuthToken();
+    if (token == null || token.isEmpty) {
       return headers;
     }
 
-    final token = await user.getIdToken();
     headers['Authorization'] = 'Bearer $token';
     return headers;
+  }
+
+  Future<String?> _resolveAuthToken() async {
+    if (_authTokenProvider != null) {
+      return _authTokenProvider();
+    }
+
+    final user = _auth.currentUser;
+    if (user == null) {
+      return null;
+    }
+
+    return user.getIdToken();
   }
 
   dynamic _handleResponse(http.Response response) {

@@ -9,7 +9,7 @@ class AuthProvider extends ChangeNotifier {
   AuthProvider({AuthService? authService})
     : _authService = authService ?? AuthService() {
     _subscription = _authService.authStateChanges().listen((user) {
-      _user = user;
+      _currentUser = user;
       _isLoadingSession = false;
       notifyListeners();
     });
@@ -18,14 +18,14 @@ class AuthProvider extends ChangeNotifier {
   final AuthService _authService;
   StreamSubscription<User?>? _subscription;
 
-  User? _user;
+  User? _currentUser;
   bool _isLoadingSession = true;
   bool _isBusy = false;
   String? _errorMessage;
   String? _infoMessage;
 
-  User? get user => _user;
-  bool get isAuthenticated => _user != null;
+  User? get currentUser => _currentUser;
+  bool get isAuthenticated => _currentUser != null;
   bool get isLoadingSession => _isLoadingSession;
   bool get isBusy => _isBusy;
   String? get errorMessage => _errorMessage;
@@ -37,17 +37,27 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> signIn(String email, String password) async {
+  Future<void> signInWithEmailAndPassword(String email, String password) async {
     await _runAction(() async {
-      await _authService.signIn(email, password);
+      await _authService.signInWithEmailAndPassword(email, password);
     });
   }
 
-  Future<void> signUp(String email, String password) async {
+  Future<void> signUpWithEmailAndPassword(
+    String name,
+    String email,
+    String password,
+  ) async {
     await _runAction(() async {
-      await _authService.signUp(email, password);
+      await _authService.signUpWithEmailAndPassword(name, email, password);
       _infoMessage =
           'Conta criada com sucesso. Enviamos um email de confirmacao para voce.';
+    });
+  }
+
+  Future<void> signOut() async {
+    await _runAction(() async {
+      await _authService.signOut();
     });
   }
 
@@ -62,12 +72,6 @@ class AuthProvider extends ChangeNotifier {
       await _authService.sendPasswordReset(email);
       _infoMessage =
           'Se existir uma conta com senha para este email, enviamos o link de redefinicao.';
-    });
-  }
-
-  Future<void> logout() async {
-    await _runAction(() async {
-      await _authService.logout();
     });
   }
 

@@ -56,13 +56,13 @@ class _AuthBootstrapScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'RoyaleDex - logado como ${authProvider.user?.email ?? "usuario"}',
+              'RoyaleDex - logado como ${authProvider.currentUser?.email ?? "usuario"}',
             ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: authProvider.isBusy
                   ? null
-                  : () => context.read<AuthProvider>().logout(),
+                  : () => context.read<AuthProvider>().signOut(),
               child: const Text('Sair'),
             ),
           ],
