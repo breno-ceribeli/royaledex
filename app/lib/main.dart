@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'config/router.dart';
 import 'config/theme.dart';
 import 'providers/auth_provider.dart';
 import 'firebase_options.dart';
@@ -15,7 +17,16 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(
-    ChangeNotifierProvider(create: (_) => AuthProvider(), child: const MyApp()),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        Provider<GoRouter>(
+          create: (context) => AppRouter.create(context.read<AuthProvider>()),
+          dispose: (context, router) => router.dispose(),
+        ),
+      ],
+      child: const MyApp(),
+    ),
   );
 }
 
@@ -24,50 +35,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    final router = context.read<GoRouter>();
+
+    return MaterialApp.router(
       title: 'RoyaleDex',
       debugShowCheckedModeBanner: false,
       theme: RoyaleDexTheme.darkTheme,
-      home: const _AuthBootstrapScreen(),
-    );
-  }
-}
-
-class _AuthBootstrapScreen extends StatelessWidget {
-  const _AuthBootstrapScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    final authProvider = context.watch<AuthProvider>();
-
-    if (authProvider.isLoadingSession) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
-    if (!authProvider.isAuthenticated) {
-      return const Scaffold(
-        body: Center(child: Text('RoyaleDex - usuario nao autenticado')),
-      );
-    }
-
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'RoyaleDex - logado como ${authProvider.currentUser?.email ?? "usuario"}',
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: authProvider.isBusy
-                  ? null
-                  : () => context.read<AuthProvider>().signOut(),
-              child: const Text('Sair'),
-            ),
-          ],
-        ),
-      ),
+      routerConfig: router,
     );
   }
 }
