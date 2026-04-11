@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import 'config/router.dart';
 import 'config/theme.dart';
+import 'providers/favorites_provider.dart';
 import 'providers/auth_provider.dart';
 import 'firebase_options.dart';
 
@@ -20,6 +21,14 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, FavoritesProvider>(
+          create: (_) => FavoritesProvider(),
+          update: (_, authProvider, favoritesProvider) {
+            final resolvedProvider = favoritesProvider ?? FavoritesProvider();
+            resolvedProvider.bindAuth(authProvider);
+            return resolvedProvider;
+          },
+        ),
         Provider<GoRouter>(
           create: (context) => AppRouter.create(context.read<AuthProvider>()),
           dispose: (context, router) => router.dispose(),
