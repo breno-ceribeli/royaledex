@@ -1,60 +1,84 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 import '../config/router.dart';
-import '../providers/auth_provider.dart';
+import '../config/theme.dart';
+import '../widgets/navbar.dart';
+import '../widgets/royale_background.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = context.watch<AuthProvider>();
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('RoyaleDex - Home'),
-        actions: [
-          if (authProvider.isAuthenticated)
-            IconButton(
-              onPressed: authProvider.isBusy
-                  ? null
-                  : () => context.read<AuthProvider>().signOut(),
-              icon: const Icon(Icons.logout),
-              tooltip: 'Sair',
-            ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Text(
-            authProvider.isAuthenticated
-                ? 'Logado como ${authProvider.currentUser?.email ?? 'usuario'}'
-                : 'Voce nao esta autenticado.',
+      body: RoyaleBackground(
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+            children: [
+              const RoyaleNavbar(
+                title: 'RoyaleDex',
+                subtitle: 'Estatisticas, batalhas e favoritos',
+                currentRoute: AppRoutes.home,
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: RoyaleDexColors.primary.withValues(alpha: 0.2),
+                  ),
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFF172A3B), Color(0xFF0E1D2C)],
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Domine a Arena',
+                      style: TextStyle(
+                        color: RoyaleDexColors.textMain,
+                        fontSize: 27,
+                        fontWeight: FontWeight.w800,
+                        height: 1.1,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Pesquise jogadores por tag no topo e acesse cartas ou favoritos rapidamente.',
+                      style: TextStyle(
+                        color: RoyaleDexColors.textMuted,
+                        height: 1.35,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        FilledButton.icon(
+                          onPressed: () => context.go(AppRoutes.cards),
+                          icon: const Icon(Icons.auto_awesome_mosaic_rounded),
+                          label: const Text('Explorar cartas'),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: () => context.go(AppRoutes.favorites),
+                          icon: const Icon(Icons.star_rounded),
+                          label: const Text('Abrir favoritos'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          FilledButton(
-            onPressed: () => context.go(AppRoutes.cards),
-            child: const Text('Ir para /cards'),
-          ),
-          const SizedBox(height: 12),
-          FilledButton(
-            onPressed: () => context.go(AppRoutes.playerByTag('#2PYLQ')),
-            child: const Text('Ir para /players/:tag'),
-          ),
-          const SizedBox(height: 12),
-          FilledButton(
-            onPressed: () => context.go(AppRoutes.favorites),
-            child: const Text('Ir para /favorites (protegida)'),
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton(
-            onPressed: () => context.go(AppRoutes.login),
-            child: const Text('Ir para /login'),
-          ),
-        ],
+        ),
       ),
     );
   }

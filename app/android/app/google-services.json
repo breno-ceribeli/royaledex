@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "881549341879-809vutsrb84aodoqtnkaemomg9ad0527.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.royaledex.royaledex",
+            "certificate_hash": "bb1fe826b6243213b87705a8d6173537ac37a00c"
+          }
+        },
+        {
           "client_id": "881549341879-73rii8qdcnti31gs3flbeghgpvc5li6u.apps.googleusercontent.com",
           "client_type": 3
         }

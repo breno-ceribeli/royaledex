@@ -10,6 +10,7 @@ import '../screens/player_profile_screen.dart';
 
 abstract final class AppRoutes {
   static const login = '/login';
+  static const register = '/register';
   static const home = '/';
   static const cards = '/cards';
   static const players = '/players';
@@ -31,6 +32,7 @@ abstract final class AppRouter {
         }
 
         final isOnLogin = state.matchedLocation == AppRoutes.login;
+        final isOnRegister = state.matchedLocation == AppRoutes.register;
         final requiresAuth = state.matchedLocation == AppRoutes.favorites;
 
         if (!authProvider.isAuthenticated && requiresAuth) {
@@ -38,7 +40,7 @@ abstract final class AppRouter {
           return '${AppRoutes.login}?from=$from';
         }
 
-        if (authProvider.isAuthenticated && isOnLogin) {
+        if (authProvider.isAuthenticated && (isOnLogin || isOnRegister)) {
           final from = state.uri.queryParameters['from'];
           if (from != null && from.isNotEmpty) {
             return from;
@@ -52,7 +54,16 @@ abstract final class AppRouter {
         GoRoute(
           path: AppRoutes.login,
           name: 'login',
-          builder: (context, state) => const LoginScreen(),
+          builder: (context, state) {
+            final startInSignUp =
+                state.uri.queryParameters['mode']?.toLowerCase() == 'register';
+            return LoginScreen(startInSignUp: startInSignUp);
+          },
+        ),
+        GoRoute(
+          path: AppRoutes.register,
+          name: 'register',
+          builder: (context, state) => const LoginScreen(startInSignUp: true),
         ),
         GoRoute(
           path: AppRoutes.home,
