@@ -4,7 +4,7 @@ import { FaGithub, FaLinkedin } from 'react-icons/fa'
 
 const socialLinks = [
   { href: 'https://github.com/breno-ceribeli', label: 'GitHub', icon: FaGithub },
-  { href: 'https://www.linkedin.com/in/breno-fernandes-ceribeli/', label: 'LinkedIn', icon: FaLinkedin },
+  { href: 'https://www.linkedin.com/in/breno-ceribeli/', label: 'LinkedIn', icon: FaLinkedin },
 ]
 
 export function Footer() {
