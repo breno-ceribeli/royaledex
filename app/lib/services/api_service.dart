@@ -37,7 +37,9 @@ class ApiService {
   }) : _auth = auth ?? FirebaseAuth.instance,
        _client = client ?? http.Client(),
        _authTokenProvider = authTokenProvider,
-       _baseUrl = _normalizeBaseUrl(baseUrl ?? dotenv.env['API_URL']);
+       _baseUrl = _normalizeBaseUrl(
+         baseUrl ?? _readApiUrlFromDartDefine() ?? dotenv.env['API_URL'],
+       );
 
   final FirebaseAuth _auth;
   final http.Client _client;
@@ -290,7 +292,9 @@ class ApiService {
     final raw = value?.trim();
 
     if (raw == null || raw.isEmpty) {
-      throw StateError('API_URL nao foi configurada no .env');
+      throw StateError(
+        'API_URL nao foi configurada via --dart-define nem no .env',
+      );
     }
 
     final noTrailingSlash = raw.endsWith('/')
@@ -300,6 +304,14 @@ class ApiService {
     return noTrailingSlash.endsWith('/api')
         ? noTrailingSlash
         : '$noTrailingSlash/api';
+  }
+
+  static String? _readApiUrlFromDartDefine() {
+    const apiUrl = String.fromEnvironment('API_URL');
+    if (apiUrl.isEmpty) {
+      return null;
+    }
+    return apiUrl;
   }
 
   static Map<String, String> _toQueryParameters(Map<String, dynamic>? query) {
