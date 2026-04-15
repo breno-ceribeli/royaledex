@@ -70,7 +70,7 @@ React Web / Flutter App
 ## Links
 
 - 🌐 Aplicação web: [royaledex.vercel.app](https://royaledex.vercel.app)
-- 📱 APK Android: *(adicionar link da release)*
+- 📱 APK Android: [Google Drive](https://drive.google.com/file/d/1Gtf08eiOTzbcw0V-HHfVmQtCnOekv5Te/view?usp=drive_link)
 - 📄 API (Swagger): [royaledex.onrender.com/api-docs](https://royaledex.onrender.com/api-docs)
 
 ---

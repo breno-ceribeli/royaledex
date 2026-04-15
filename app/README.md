@@ -4,7 +4,7 @@ Aplicativo mobile em Flutter para consulta de estatísticas e cartas do Clash Ro
 
 ## 📱 Testar ou baixar
 
-- **APK Android:** [https://drive.google.com/file/d/1Gtf08eiOTzbcw0V-HHfVmQtCnOekv5Te/view?usp=drive_link](https://drive.google.com/file/d/1Gtf08eiOTzbcw0V-HHfVmQtCnOekv5Te/view?usp=drive_link)
+- **APK Android:** [Google Drive](https://drive.google.com/file/d/1Gtf08eiOTzbcw0V-HHfVmQtCnOekv5Te/view?usp=drive_link)
 - **Diretório de APKs:** [https://drive.google.com/drive/folders/11pqBquMXIblOsnCnppybW6kXIMcwZB2X?usp=drive_link](https://drive.google.com/drive/folders/11pqBquMXIblOsnCnppybW6kXIMcwZB2X?usp=drive_link)
 - **Versão web Flutter:** *Ainda não hospedado*
 
