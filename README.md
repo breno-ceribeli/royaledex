@@ -1,5 +1,15 @@
 # RoyaleDex
 
+<p align="left">
+  <img alt="Deploy Web" src="https://img.shields.io/badge/web-royaledex.vercel.app-0D1B2A?style=flat-square&logo=vercel&logoColor=white" />
+  <img alt="Deploy Backend" src="https://img.shields.io/badge/api-royaledex.onrender.com-0D1B2A?style=flat-square&logo=render&logoColor=white" />
+  <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black" />
+  <img alt="Flutter" src="https://img.shields.io/badge/Flutter-3.24-02569B?style=flat-square&logo=flutter&logoColor=white" />
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white" />
+  <img alt="Firebase" src="https://img.shields.io/badge/Firebase-Auth%20%2B%20Firestore-FFCA28?style=flat-square&logo=firebase&logoColor=black" />
+  <img alt="License" src="https://img.shields.io/badge/license-MIT-green?style=flat-square" />
+</p>
+
 **RoyaleDex** é uma plataforma de estatísticas do Clash Royale com duas interfaces (web e mobile) que compartilham o mesmo backend e base de autenticação.
 
 O projeto foi desenvolvido como trabalho acadêmico e está organizado como um monorepo com três camadas independentes: backend em Node.js/Express, frontend web em React e aplicativo mobile em Flutter.
@@ -70,12 +80,13 @@ React Web / Flutter App
 ## Links
 
 - 🌐 Aplicação web: [royaledex.vercel.app](https://royaledex.vercel.app)
-- 📱 APK Android: [Google Drive](https://drive.google.com/file/d/1Gtf08eiOTzbcw0V-HHfVmQtCnOekv5Te/view?usp=drive_link)
+- 📱 APK Android: [Github Release](https://github.com/breno-ceribeli/royaledex/releases/tag/v1.0.0)
 - 📄 API (Swagger): [royaledex.onrender.com/api-docs](https://royaledex.onrender.com/api-docs)
 
 ---
 
 ## Licença
 
-Projeto de uso acadêmico e educacional.
+Distribuído sob a licença MIT. Veja [LICENSE](LICENSE) para mais detalhes.
+
 Não afiliado à Supercell. Clash Royale é marca registrada da Supercell.
